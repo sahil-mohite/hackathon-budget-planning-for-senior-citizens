@@ -6,6 +6,7 @@ import { VoiceRecorder } from "@/components/VoiceRecorder";
 import { BudgetDashboard } from "@/components/BudgetDashboard";
 import { SimpleCalculator } from "@/components/SimpleCalculator";
 import { Card } from "@/components/ui/card";
+import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Clock, FileText, HelpCircle, X } from "lucide-react";
 
@@ -189,6 +190,8 @@ const Index = () => {
           </div>
         </div>
       </div>
+
+      <Footer />
     </div>
   );
 };
