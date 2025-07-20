@@ -19,12 +19,11 @@ Millions of senior citizens, especially pensioners, struggle with:
 ## 🚀 How to Run Locally
 
 1. **Clone the repo**
+
     a) git clone https://github.com/<your-username>/hackathon-budget-planning-for-senior-citizens.git
 
     b) cd hackathon-budget-planning-for-senior-citizens
 
-2. **Install dependencies** 
-    npm install
+2. **Install dependencies** :  npm install
 
-3. **Start frontend**
-    npm run dev  
+3. **Start frontend** :  npm run dev  
