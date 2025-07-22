@@ -1,0 +1,106 @@
+import { useForm } from "react-hook-form";
+import { useNavigate, Link } from "react-router-dom";
+import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { DollarSign } from "lucide-react";
+
+export default function Login() {
+    const navigate = useNavigate();
+    const {
+        register,
+        handleSubmit,
+        formState: { errors }
+    } = useForm();
+
+    const onSubmit = async (data: any) => {
+        const res = await fetch("/api/auth/login", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(data),
+        });
+        const result = await res.json();
+        if (res.ok) {
+            localStorage.setItem("token", result.token);
+            navigate("/dashboard");
+        } else {
+            alert(result.message);
+        }
+    };
+
+    return (
+        <main className="min-h-[calc(100vh-64px)] flex items-center justify-center bg-gradient-to-b from-[#eef6ff] to-white px-4">
+            <div className="w-full max-w-4xl grid md:grid-cols-2 items-center gap-8">
+
+                {/* Branding Side */}
+                <div className="hidden md:flex flex-col items-center justify-center space-y-4">
+                    <div className="h-28 w-28 sm:h-32 sm:w-32 bg-gradient-primary rounded-xl flex items-center justify-center shadow-md">
+                        <div className="h-10 w-10 sm:h-12 sm:w-12 bg-gradient-primary rounded-lg flex items-center justify-center">
+                            <DollarSign className="h-10 w-10 sm:h-14 sm:w-14 text-primary-foreground" />
+                        </div>
+                    </div>
+                    <h2 className="text-senior-xl font-bold text-foreground text-center">
+                        BudgetWise Senior
+                    </h2>
+                    <p className="text-muted-foreground text-center text-sm max-w-sm">
+                        Track your budget, pension, and expenses with confidence and ease.
+                    </p>
+                </div>
+
+                {/* Login Form */}
+                <Card className="w-full p-8 shadow-xl space-y-6">
+                    <div className="text-center">
+                        <h3 className="text-senior-lg font-semibold text-foreground">Welcome Back</h3>
+                        <p className="text-sm text-muted-foreground">Login to continue</p>
+                    </div>
+
+                    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+                        <div>
+                            <label className="block text-sm font-medium text-muted-foreground mb-1">
+                                Email <span className="text-red-500">*</span>
+                            </label>
+                            <input
+                                type="email"
+                                {...register("email", { required: "Email is required" })}
+                                placeholder="you@example.com"
+                                className="w-full border border-border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary"
+                            />
+                            {errors.email?.message && (
+                                <p className="text-red-500 text-xs mt-1">
+                                    {typeof errors.email.message === "string" ? errors.email.message : "Invalid email"}
+                                </p>
+                            )}
+                        </div>
+
+                        <div>
+                            <label className="block text-sm font-medium text-muted-foreground mb-1">
+                                Password <span className="text-red-500">*</span>
+                            </label>
+                            <input
+                                type="password"
+                                {...register("password", { required: "Password is required" })}
+                                placeholder="Enter your password"
+                                className="w-full border border-border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary"
+                            />
+                            {errors.password?.message && (
+                                <p className="text-red-500 text-xs mt-1">
+                                    {typeof errors.password.message === "string" ? errors.password.message : "Invalid input"}
+                                </p>
+                            )}
+                        </div>
+
+                        <Button type="submit" className="w-full">
+                            Login
+                        </Button>
+                    </form>
+
+                    <p className="text-sm text-center text-muted-foreground mt-4">
+                        Not registered?{" "}
+                        <Link to="/signup-step-one" className="text-primary hover:underline font-medium">
+                            Sign up first
+                        </Link>
+                    </p>
+                </Card>
+            </div>
+        </main>
+    );
+}
