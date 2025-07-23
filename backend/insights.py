@@ -9,6 +9,7 @@ from bson import ObjectId
 import motor.motor_asyncio
 import google.generativeai as genai
 from dotenv import load_dotenv
+from models import FinancialGoal, GoalInDB, ExpenseItem, InsightResponse
 
 # Load environment variables from .env file
 load_dotenv()
@@ -36,35 +37,6 @@ if GOOGLE_API_KEY:
 else:
     print("GOOGLE_API_KEY not found. Insights endpoint will not work.")
 
-
-# --- Pydantic Models ---
-class FinancialGoal(BaseModel):
-    user_id: str
-    goal_description: str = Field(..., description="The user's financial goal for the month.", example="Save $500 for a vacation.")
-    month: str = Field(..., description="The month for the goal, e.g., '2024-07'")
-
-class GoalInDB(FinancialGoal):
-    id: str = Field(alias="_id")
-    created_at: datetime.datetime
-
-    class Config:
-        populate_by_name = True
-        json_encoders = {ObjectId: str}
-        arbitrary_types_allowed = True
-
-class ExpenseItem(BaseModel):
-    # A simplified model for returning expense data
-    store_name: Optional[str] = None
-    bill_date: Optional[str] = None
-    item_name: Optional[str] = None
-    quantity: Optional[float] = None
-    unit_price: Optional[float] = None
-    category: Optional[str] = None
-
-class InsightResponse(BaseModel):
-    user_id: str
-    goal_description: str
-    insights: str
 
 # --- Helper Function ---
 def fix_object_id(doc):
