@@ -25,9 +25,9 @@ export default function Login() {
       });
       
       const result = await res.json();
-
+      console.log(res)
       if (res.ok) {
-        localStorage.setItem("token", result.token);
+        localStorage.setItem("token", result.access_token);
         navigate("/");
       } else {
         setServerError(result.message || "Login failed. Please try again.");

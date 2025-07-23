@@ -109,7 +109,8 @@ async def get_profile(current_user: dict = Depends(get_current_user)):
 async def process_data_and_store(
     user_id: str = Form(...),
     image: Optional[UploadFile] = File(None),
-    user_explanation: Optional[str] = Form(None)
+    user_explanation: Optional[str] = Form(None),
+    current_user: dict = Depends(get_current_user)
 ):
     if not image and not user_explanation:
         raise HTTPException(
@@ -204,5 +205,5 @@ async def process_data_and_store(
 
 
 @app.get("/")
-def read_root():
+def read_root(current_user: dict = Depends(get_current_user)):
     return {"message": "Data Processing Service is running. Use the /process/ endpoint."}

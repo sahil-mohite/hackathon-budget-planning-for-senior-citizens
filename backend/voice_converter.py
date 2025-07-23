@@ -1,9 +1,11 @@
 # voice.py
 import os
-from fastapi import APIRouter, File, UploadFile, HTTPException
+from fastapi import APIRouter, Depends, File, UploadFile, HTTPException
 from pydantic import BaseModel
 import google.generativeai as genai
 from dotenv import load_dotenv
+
+from auth import get_current_user
 
 # Load environment variables from .env file
 load_dotenv()
@@ -30,7 +32,8 @@ class TranscriptionResponse(BaseModel):
 # --- API Endpoint ---
 @router.post("/transcribe", response_model=TranscriptionResponse)
 async def transcribe_voice(
-    audio_file: UploadFile = File(...)
+    audio_file: UploadFile = File(...),
+    current_user: dict = Depends(get_current_user)
 ):
     """
     Accepts an audio file (e.g., mp3, wav, m4a) and returns the transcribed text.

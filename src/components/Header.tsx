@@ -1,7 +1,13 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Settings, Globe, Bell, DollarSign, Menu } from "lucide-react";
+import { 
+  UserCircle, 
+  Globe, 
+  Bell, 
+  DollarSign, 
+  Menu 
+} from "lucide-react";
 import { LanguageSelector } from "./LanguageSelector";
 import { NotificationCenter } from "./NotificationCenter";
 import { SettingsPanel } from "./SettingsPanel";
@@ -82,7 +88,7 @@ export function Header({ onMenuToggle, showMenuButton = false }: HeaderProps) {
                 size="lg"
                 onClick={() => setShowSettings(!showSettings)}
               >
-                <Settings className="h-5 w-5" />
+                <UserCircle className="h-6 w-6" />
               </Button>
             </div>
 
@@ -108,7 +114,7 @@ export function Header({ onMenuToggle, showMenuButton = false }: HeaderProps) {
                 onClick={() => setShowSettings(!showSettings)}
                 className="p-2"
               >
-                <Settings className="h-4 w-4" />
+                <UserCircle className="h-6 w-6" />
               </Button>
             </div>
           </div>
