@@ -19,16 +19,20 @@ import google.generativeai as genai
 from PIL import Image
 
 # --- Configuration ---
-MONGO_USERNAME = "newuser"
-MONGO_PASSWORD = "newuser"
-CLUSTER_NAME = ":billing-data.rgnagne.mongodb.net"
-DB_NAME = "auth"
+MONGO_DETAILS = os.environ.get("MONGO_DETAILS", "mongodb://localhost:27017")
+client = motor.motor_asyncio.AsyncIOMotorClient(MONGO_DETAILS)
+database = client.gemini_insights
+item_collection = database.get_collection("bill_items")
+# MONGO_USERNAME = "newuser"
+# MONGO_PASSWORD = "newuser"
+# CLUSTER_NAME = ":billing-data.rgnagne.mongodb.net"
+# DB_NAME = "auth"
 GOOGLE_API_KEY = os.environ.get("GOOGLE_API_KEY", "GOOGLE_API_KEY")
 
-MONGO_URL = (
-    f"mongodb+srv://{MONGO_USERNAME}:{MONGO_PASSWORD}"
-    f"@{CLUSTER_NAME}.mongodb.net/{DB_NAME}?retryWrites=true&w=majority&appName=Billing-Data"
-)
+# MONGO_URL = (
+#     f"mongodb+srv://{MONGO_USERNAME}:{MONGO_PASSWORD}"
+#     f"@{CLUSTER_NAME}.mongodb.net/{DB_NAME}?retryWrites=true&w=majority&appName=Billing-Data"
+# )
 
 # --- Initialize FastAPI App ---
 app = FastAPI(
