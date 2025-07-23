@@ -1,0 +1,17 @@
+{
+    "dailyExpenses": [
+      { "day": "Mon", "expense": 400 },
+      { "day": "Tue", "expense": 300 },
+      { "day": "Wed", "expense": 500 },
+      { "day": "Thu", "expense": 800 },
+      { "day": "Fri", "expense": 0 },
+      { "day": "Sat", "expense": 700 },
+      { "day": "Sun", "expense": 200 }
+    ],
+    "categoryBreakdown": [
+      { "category": "Food", "value": 400 },
+      { "category": "Travel", "value": 300 },
+      { "category": "Shopping", "value": 300 },
+      { "category": "Bills", "value": 200 }
+    ]
+  }
