@@ -1,3 +1,5 @@
+// context/SignupContext.tsx
+
 import { createContext, useContext, useState } from "react";
 
 export const SignupContext = createContext<any>(null);
@@ -8,12 +10,16 @@ export const SignupProvider = ({ children }: { children: React.ReactNode }) => {
     password: "",
     firstName: "",
     lastName: "",
-    phone: "",
-    income: "",
-    address: "",
-    investsInStocks: false,
-    yearlyStockInvestment: "",
-    stockPlatforms: "",
+    financialDetails: {
+      phone: "",
+      income: "",
+      address: "",
+      getsPension: false,
+      pensionAmount: "",
+      investsInStocks: false,
+      yearlyStockInvestment: "",
+      stockPlatforms: "",
+    },
   });
 
   return (

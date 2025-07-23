@@ -15,8 +15,6 @@ const SignUpFirstPage = () => {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
-
-    // Clear errors on input change
     setErrors((prev) => ({ ...prev, [name]: undefined }));
   };
 
@@ -36,16 +34,13 @@ const SignUpFirstPage = () => {
   };
 
   const handleNext = () => {
-    const { firstName, lastName, email, password } = formData;
-
     const validationErrors = validate();
-
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
       return;
     }
 
-    if (firstName && lastName && email && password) {
+    if (formData.firstName && formData.lastName && formData.email && formData.password) {
       navigate("/signup-step-two");
     } else {
       alert("Please fill all fields");
@@ -63,9 +58,7 @@ const SignUpFirstPage = () => {
               <DollarSign className="h-10 w-10 sm:h-14 sm:w-14 text-primary-foreground" />
             </div>
           </div>
-          <h2 className="text-senior-xl font-bold text-foreground text-center">
-            BudgetWise Senior
-          </h2>
+          <h2 className="text-senior-xl font-bold text-foreground text-center">BudgetWise Senior</h2>
           <p className="text-muted-foreground text-center text-sm max-w-sm">
             Sign up to start managing your pension and expenses smartly.
           </p>
