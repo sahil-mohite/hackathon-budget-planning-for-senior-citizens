@@ -91,7 +91,6 @@ async def signup(payload: SignUpRequest):
 
 @app.post("/auth/signin", response_model=TokenResponse)
 async def signin(payload: SignInRequest):
-    print(payload.dict())
     user = await users_collection.find_one({"email": payload.email})
     if not user or not verify_password(payload.password, user["password"]):
         raise HTTPException(status_code=401, detail="Invalid credentials")
