@@ -1,16 +1,29 @@
+import datetime
 from pydantic import BaseModel, EmailStr, Field
 from typing import Dict, Any, Optional
 from bson import ObjectId
 
 
+class FinancialDetails(BaseModel):
+    additionalDetails: Optional[str]
+    income: Optional[str]
+    getsPension: bool
+    pensionAmount: Optional[str]
+    investsInStocks: bool
+    yearlyStockInvestment: Optional[str]
+
 class SignUpRequest(BaseModel):
-    username: str
-    email: EmailStr
+    firstName: str
+    lastName: str
+    email: str
     password: str
-    financialDetials: Dict[str, Any]
+    address: str
+    phone: str
+    financialDetails: FinancialDetails
+
 
 class SignInRequest(BaseModel):
-    email: EmailStr
+    email: str
     password: str
 
 class TokenResponse(BaseModel):
