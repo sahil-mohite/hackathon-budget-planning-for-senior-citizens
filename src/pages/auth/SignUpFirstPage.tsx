@@ -14,7 +14,13 @@ const SignUpFirstPage = () => {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
+    setFormData({
+      ...formData,
+      [name]: value,
+      financialDetails: {
+        ...formData.financialDetails, // preserve existing nested data
+      },
+    });
     setErrors((prev) => ({ ...prev, [name]: undefined }));
   };
 
