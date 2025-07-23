@@ -5,12 +5,13 @@ import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
-import { 
-  Settings, 
-  User, 
-  Bell, 
-  Shield, 
-  Palette, 
+import { useNavigate, Link } from "react-router-dom";
+import {
+  Settings,
+  User,
+  Bell,
+  Shield,
+  Palette,
   Volume2,
   DollarSign,
   Save,
@@ -30,28 +31,33 @@ export function SettingsPanel({ isOpen, onClose }: SettingsPanelProps) {
     email: "john.doe@email.com",
     currency: "USD",
     monthlyIncome: "3500",
-    
+
     // Accessibility Settings
     fontSize: [18], // Array for Slider component
     highContrast: false,
     voiceSpeed: [1.0],
-    
+
     // Notification Settings
     budgetAlerts: true,
     monthlyReminders: true,
     savingsTips: true,
     soundEnabled: true,
-    
+
     // Privacy Settings
     dataSharing: false,
     backupEnabled: true,
     biometricAuth: false,
-    
+
     // App Preferences
     language: "en",
     darkMode: false,
     autoSave: true,
   });
+  const navigate = useNavigate();
+  const handleLogout = () => {
+    sessionStorage.removeItem("jwtToken");
+    navigate("/login");
+  };
 
   const [hasChanges, setHasChanges] = useState(false);
 
@@ -96,11 +102,11 @@ export function SettingsPanel({ isOpen, onClose }: SettingsPanelProps) {
   return (
     <div className="fixed inset-0 z-50 lg:relative lg:inset-auto">
       {/* Mobile overlay */}
-      <div 
-        className="fixed inset-0 bg-black/50 lg:hidden" 
+      <div
+        className="fixed inset-0 bg-black/50 lg:hidden"
         onClick={onClose}
       />
-      
+
       {/* Settings panel */}
       <Card className="fixed right-0 top-0 h-full w-full max-w-2xl lg:relative lg:h-auto lg:max-h-[700px] overflow-hidden bg-card border-border shadow-card">
         <div className="flex flex-col h-full">
@@ -117,6 +123,9 @@ export function SettingsPanel({ isOpen, onClose }: SettingsPanelProps) {
                   Save
                 </Button>
               )}
+              <Button variant="outline" onClick={handleLogout} size="sm">
+                Logout
+              </Button>
               <Button variant="outline" onClick={onClose} size="sm">
                 Close
               </Button>
@@ -125,14 +134,14 @@ export function SettingsPanel({ isOpen, onClose }: SettingsPanelProps) {
 
           {/* Settings Content */}
           <div className="flex-1 overflow-y-auto p-6 space-y-8">
-            
+
             {/* Profile Settings */}
             <div className="space-y-4">
               <h3 className="text-senior-lg font-semibold text-foreground flex items-center gap-2">
                 <User className="h-6 w-6 text-primary" />
                 Profile Information
               </h3>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label className="text-senior-base">Full Name</Label>
@@ -142,7 +151,7 @@ export function SettingsPanel({ isOpen, onClose }: SettingsPanelProps) {
                     className="text-senior-base h-12"
                   />
                 </div>
-                
+
                 <div className="space-y-2">
                   <Label className="text-senior-base">Email</Label>
                   <Input
@@ -152,7 +161,7 @@ export function SettingsPanel({ isOpen, onClose }: SettingsPanelProps) {
                     className="text-senior-base h-12"
                   />
                 </div>
-                
+
                 <div className="space-y-2">
                   <Label className="text-senior-base">Currency</Label>
                   <Input
@@ -161,7 +170,7 @@ export function SettingsPanel({ isOpen, onClose }: SettingsPanelProps) {
                     className="text-senior-base h-12"
                   />
                 </div>
-                
+
                 <div className="space-y-2">
                   <Label className="text-senior-base">Monthly Income</Label>
                   <Input
@@ -176,7 +185,7 @@ export function SettingsPanel({ isOpen, onClose }: SettingsPanelProps) {
 
             {/* Language Settings */}
             <div className="space-y-4">
-              <LanguageSelector 
+              <LanguageSelector
                 variant="grid"
                 currentLanguage={settings.language}
                 onLanguageChange={(lang) => updateSetting("language", lang)}
@@ -189,7 +198,7 @@ export function SettingsPanel({ isOpen, onClose }: SettingsPanelProps) {
                 <Palette className="h-6 w-6 text-primary" />
                 Accessibility
               </h3>
-              
+
               <div className="space-y-6">
                 <div className="space-y-3">
                   <Label className="text-senior-base">Font Size: {settings.fontSize[0]}px</Label>
@@ -202,7 +211,7 @@ export function SettingsPanel({ isOpen, onClose }: SettingsPanelProps) {
                     className="w-full"
                   />
                 </div>
-                
+
                 <div className="space-y-3">
                   <Label className="text-senior-base">Voice Speed: {settings.voiceSpeed[0]}x</Label>
                   <Slider
@@ -214,7 +223,7 @@ export function SettingsPanel({ isOpen, onClose }: SettingsPanelProps) {
                     className="w-full"
                   />
                 </div>
-                
+
                 <div className="flex items-center justify-between">
                   <Label className="text-senior-base">High Contrast Mode</Label>
                   <Switch
@@ -231,7 +240,7 @@ export function SettingsPanel({ isOpen, onClose }: SettingsPanelProps) {
                 <Bell className="h-6 w-6 text-primary" />
                 Notifications
               </h3>
-              
+
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <div>
@@ -243,7 +252,7 @@ export function SettingsPanel({ isOpen, onClose }: SettingsPanelProps) {
                     onCheckedChange={(checked) => updateSetting("budgetAlerts", checked)}
                   />
                 </div>
-                
+
                 <div className="flex items-center justify-between">
                   <div>
                     <Label className="text-senior-base">Monthly Reminders</Label>
@@ -254,7 +263,7 @@ export function SettingsPanel({ isOpen, onClose }: SettingsPanelProps) {
                     onCheckedChange={(checked) => updateSetting("monthlyReminders", checked)}
                   />
                 </div>
-                
+
                 <div className="flex items-center justify-between">
                   <div>
                     <Label className="text-senior-base">Savings Tips</Label>
@@ -265,7 +274,7 @@ export function SettingsPanel({ isOpen, onClose }: SettingsPanelProps) {
                     onCheckedChange={(checked) => updateSetting("savingsTips", checked)}
                   />
                 </div>
-                
+
                 <div className="flex items-center justify-between">
                   <div>
                     <Label className="text-senior-base">Sound Notifications</Label>
@@ -285,7 +294,7 @@ export function SettingsPanel({ isOpen, onClose }: SettingsPanelProps) {
                 <Shield className="h-6 w-6 text-primary" />
                 Privacy & Security
               </h3>
-              
+
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <div>
@@ -297,7 +306,7 @@ export function SettingsPanel({ isOpen, onClose }: SettingsPanelProps) {
                     onCheckedChange={(checked) => updateSetting("backupEnabled", checked)}
                   />
                 </div>
-                
+
                 <div className="flex items-center justify-between">
                   <div>
                     <Label className="text-senior-base">Biometric Authentication</Label>
@@ -308,7 +317,7 @@ export function SettingsPanel({ isOpen, onClose }: SettingsPanelProps) {
                     onCheckedChange={(checked) => updateSetting("biometricAuth", checked)}
                   />
                 </div>
-                
+
                 <div className="flex items-center justify-between">
                   <div>
                     <Label className="text-senior-base">Auto-Save</Label>
@@ -326,7 +335,7 @@ export function SettingsPanel({ isOpen, onClose }: SettingsPanelProps) {
           {/* Footer */}
           <div className="border-t border-border p-6">
             <div className="flex flex-col sm:flex-row gap-3">
-              <Button 
+              <Button
                 onClick={saveSettings}
                 disabled={!hasChanges}
                 className="text-senior-base bg-gradient-primary"
@@ -334,9 +343,9 @@ export function SettingsPanel({ isOpen, onClose }: SettingsPanelProps) {
                 <Save className="h-5 w-5 mr-2" />
                 Save All Changes
               </Button>
-              
-              <Button 
-                variant="outline" 
+
+              <Button
+                variant="outline"
                 onClick={resetSettings}
                 className="text-senior-base"
               >

@@ -27,7 +27,7 @@ export default function Login() {
       const result = await res.json();
 
       if (res.ok) {
-        localStorage.setItem("token", result.token);
+        sessionStorage.setItem("token", result.token);
         navigate("/dashboard");
       } else {
         setServerError(result.message || "Login failed. Please try again.");
