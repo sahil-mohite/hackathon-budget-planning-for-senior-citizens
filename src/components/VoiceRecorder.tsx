@@ -29,6 +29,7 @@ export function VoiceRecorder() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const lastTranscriptRef = useRef("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const [outMessage, setOutMessage] = useState<string>("");
 
   const { transcript, resetTranscript, browserSupportsSpeechRecognition } =
     useSpeechRecognition();
@@ -61,39 +62,76 @@ export function VoiceRecorder() {
       lastTranscriptRef.current = transcript;
     }
   }, [transcript]);
-
+  function base64ToBlob(base64) {
+    const byteString = atob(base64.split(",")[1]);
+    const mimeString = base64.split(",")[0].split(":")[1].split(";")[0];
+    const ab = new ArrayBuffer(byteString.length);
+    const ia = new Uint8Array(ab);
+    for (let i = 0; i < byteString.length; i++) {
+      ia[i] = byteString.charCodeAt(i);
+    }
+    return new Blob([ab], { type: mimeString });
+  }
+  function isBlob(value: any): value is Blob {
+    return (
+      value &&
+      typeof value === "object" &&
+      typeof (value as Blob).arrayBuffer === "function"
+    );
+  }
   const handleSend = async () => {
     const trimmedInput = input.trim();
     if (!trimmedInput && !imagePreview) return;
 
     if (isListening) stopListening();
 
-    const payload =
-      imagePreview !== null
-        ? {
-            sender: "user",
-            type: "image",
-            content: trimmedInput || "",
-            image: imagePreview,
-          }
-        : {
-            sender: "user",
-            type: "text",
-            content: trimmedInput,
-          };
+    const formData = new FormData();
 
-    // Send to backend
+    if (imagePreview !== null) {
+      // Append image-related fields
+
+      formData.append("user_id", "user-001-1");
+
+      // formData.append("image", imagePreview);
+
+      if (
+        typeof imagePreview === "string" &&
+        imagePreview.startsWith("data:image/")
+      ) {
+        const imageBlob = base64ToBlob(imagePreview);
+        formData.append("image", imageBlob, "upload.jpg");
+      } else if (isBlob(imagePreview)) {
+        formData.append("image", imagePreview, "upload.jpg");
+      }
+    } else {
+      // Append text-only fields
+      formData.append("user_id", "user-001-1");
+      formData.append("user_explanation", trimmedInput);
+    }
     try {
-      const response = await fetch("https://dummy-backend.com/api/chat", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
-      });
+      // 2. Append fields
+      // for example, a file from input
 
-      const data = await response.json();
-      console.log("Backend response:", data);
+      const response = await fetch("http://localhost:8000/process/", {
+        method: "POST",
+
+        body: formData,
+      });
+      console.log(response);
+
+      const data = await response.json(); // parse JSON response
+
+      const message = data
+        .map(
+          (item) =>
+            `item name: ${item.item_name} \n item price:${item.unit_price}\n item catagoery:  ${item.category}`
+        )
+        .join(", ");
+
+      console.log("Constructed message:", message);
+
+      // Assuming you have a React state setter called setOutMessageState
+      setOutMessage(message);
     } catch (error) {
       console.error("Failed to send message:", error);
     }
@@ -123,20 +161,41 @@ export function VoiceRecorder() {
     setIsTyping(true);
 
     // Simulated bot reply with typing animation
-    setTimeout(() => {
+
+    // setTimeout(() => {
+    //   setIsTyping(false);
+    //   setMessages((prev) => [
+    //     ...prev,
+    //     {
+    //       sender: "bot",
+    //       type: "text",
+    //       content: `I understand you said: "${
+    //         trimmedInput || "[image only]"
+    //       }".`,
+    //     },
+    //   ]);
+    // }, 1500);
+  };
+  useEffect(() => {
+    if (!outMessage) return; // optionally skip if empty or null
+
+    setIsTyping(true);
+
+    const timer = setTimeout(() => {
       setIsTyping(false);
       setMessages((prev) => [
         ...prev,
         {
           sender: "bot",
           type: "text",
-          content: `I understand you said: "${
-            trimmedInput || "[image only]"
-          }".`,
+          content: `I understand you said: "${outMessage || "[image only]"}".`,
         },
       ]);
     }, 1500);
-  };
+
+    // Cleanup timeout if outMessage changes again or component unmounts
+    return () => clearTimeout(timer);
+  }, [outMessage]);
 
   const startListening = () => {
     SpeechRecognition.startListening({ continuous: true, language: "en-IN" });
