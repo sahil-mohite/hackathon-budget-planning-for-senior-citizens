@@ -1,13 +1,16 @@
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Mic, BarChart3, Shield, Globe } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 interface WelcomeSectionProps {
   onGetStarted: () => void;
   userEmail?: string;
 }
 
+
 export function WelcomeSection({ onGetStarted, userEmail }: WelcomeSectionProps) {
+
   const features = [
     {
       icon: Mic,
@@ -26,8 +29,23 @@ export function WelcomeSection({ onGetStarted, userEmail }: WelcomeSectionProps)
     },
     {
       icon: Globe,
-      title: "Multi-Language",
-      description: "Available in your preferred language",
+      title: t("features.voice.title"),
+      description: t("features.voice.description"),
+    },
+    {
+      icon: BarChart3,
+      title: t("features.insights.title"),
+      description: t("features.insights.description"),
+    },
+    {
+      icon: Shield,
+      title: t("features.secure.title"),
+      description: t("features.secure.description"),
+    },
+    {
+      icon: Globe,
+      title: t("features.language.title"),
+      description: t("features.language.description"),
     },
   ];
 
@@ -37,23 +55,21 @@ export function WelcomeSection({ onGetStarted, userEmail }: WelcomeSectionProps)
       <div className="text-center space-y-6">
         <div className="space-y-4">
           <h1 className="text-senior-2xl font-bold text-foreground">
-            Hi {userEmail}, Welcome to BudgetWise Senior
+            Hi {userEmail}, {t("welcome.title")}
           </h1>
           <p className="text-senior-lg text-muted-foreground max-w-2xl mx-auto">
-            Manage your monthly budget effortlessly with voice assistance and AI-powered insights designed specifically for seniors.
+            {t("welcome.description")}
           </p>
         </div>
 
-        <div className="flex justify-center mt-6">
-  <Button
-    onClick={onGetStarted}
-    size="lg"
-    className="h-16 px-10 text-lg font-semibold bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-xl shadow-lg hover:scale-105 hover:shadow-xl transition-transform duration-300 flex items-center justify-center space-x-3"
-  >
-    <Mic className="h-5 w-5" />
-    <span>Get Started with Voice</span>
-  </Button>
-</div>
+        <Button
+          onClick={onGetStarted}
+          size="lg"
+          className="h-16 px-12 text-senior-lg font-semibold bg-gradient-primary hover:shadow-gentle transition-all duration-300"
+        >
+          <Mic className="h-6 w-6 mr-3" />
+          {t("welcome.get_started")}
+        </Button>
 
       </div>
 
@@ -65,6 +81,7 @@ export function WelcomeSection({ onGetStarted, userEmail }: WelcomeSectionProps)
             <Card
               key={index}
               className="p-8 hover:shadow-gentle transition-all duration-300 bg-gradient-subtle border-border"
+              className="p-6 hover:shadow-gentle transition-all duration-300 bg-gradient-subtle border-border"
             >
               <div className="space-y-4">
                 <div className="w-16 h-16 bg-primary/10 rounded-lg flex items-center justify-center">
@@ -108,20 +125,16 @@ export function WelcomeSection({ onGetStarted, userEmail }: WelcomeSectionProps)
       <Card className="p-6 bg-accent border-border mx-4">
         <div className="space-y-4">
           <h3 className="text-senior-lg font-semibold text-accent-foreground">
-            Quick Start Tips
+            {t("welcome.quick_start")}
           </h3>
           <div className="space-y-3">
-            {[
-              "Click \"Voice Input\" and tell us about your monthly income and expenses",
-              "View your personalized dashboard with spending insights",
-              "Track your spending history and get AI-powered recommendations",
-            ].map((tip, i) => (
-              <div key={i} className="flex items-start gap-3">
+            {[1, 2, 3].map((step) => (
+              <div key={step} className="flex items-start gap-3">
                 <div className="w-6 h-6 bg-primary rounded-full flex items-center justify-center text-primary-foreground text-sm font-bold">
-                  {i + 1}
+                  {step}
                 </div>
                 <p className="text-senior-base text-accent-foreground">
-                  {tip}
+                  {t(`welcome.step${step}`)}
                 </p>
               </div>
             ))}
