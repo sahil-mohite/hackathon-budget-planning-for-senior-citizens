@@ -3,15 +3,17 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Calculator, Plus, Minus, Equal } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 export function SimpleCalculator() {
+  const { t } = useTranslation();
   const [income, setIncome] = useState("");
   const [expenses, setExpenses] = useState<{ name: string; amount: string }[]>([
-    { name: "Housing", amount: "" },
-    { name: "Food", amount: "" },
-    { name: "Utilities", amount: "" },
-    { name: "Healthcare", amount: "" },
-    { name: "Transportation", amount: "" },
+    { name: t("calculator.default.housing"), amount: "" },
+    { name: t("calculator.default.food"), amount: "" },
+    { name: t("calculator.default.utilities"), amount: "" },
+    { name: t("calculator.default.healthcare"), amount: "" },
+    { name: t("calculator.default.transportation"), amount: "" },
   ]);
   const [result, setResult] = useState<number | null>(null);
 
@@ -42,10 +44,10 @@ export function SimpleCalculator() {
       <div className="text-center space-y-2">
         <h2 className="text-senior-xl font-bold text-foreground flex items-center justify-center gap-3">
           <Calculator className="h-8 w-8 text-primary" />
-          Budget Calculator
+          {t("calculator.title")}
         </h2>
         <p className="text-senior-base text-muted-foreground">
-          Enter your income and expenses to see your budget balance
+          {t("calculator.subtitle")}
         </p>
       </div>
 
@@ -54,15 +56,15 @@ export function SimpleCalculator() {
         <Card className="p-6 space-y-4">
           <h3 className="text-senior-lg font-semibold text-foreground flex items-center gap-2">
             <Plus className="h-5 w-5 text-success" />
-            Monthly Income
+            {t("calculator.income.title")}
           </h3>
           <div className="space-y-2">
             <label className="text-senior-base text-muted-foreground">
-              Total Monthly Income ($)
+              {t("calculator.income.label")}
             </label>
             <Input
               type="number"
-              placeholder="Enter your monthly income"
+              placeholder={t("calculator.income.placeholder")}
               value={income}
               onChange={(e) => setIncome(e.target.value)}
               className="text-senior-base h-12"
@@ -74,13 +76,13 @@ export function SimpleCalculator() {
         <Card className="p-6 space-y-4">
           <h3 className="text-senior-lg font-semibold text-foreground flex items-center gap-2">
             <Minus className="h-5 w-5 text-destructive" />
-            Monthly Expenses
+            {t("calculator.expenses.title")}
           </h3>
           <div className="space-y-3">
             {expenses.map((expense, index) => (
               <div key={index} className="grid grid-cols-2 gap-2">
                 <Input
-                  placeholder="Category name"
+                  placeholder={t("calculator.expenses.name_placeholder")}
                   value={expense.name}
                   onChange={(e) => updateExpense(index, "name", e.target.value)}
                   className="text-senior-sm h-10"
@@ -88,7 +90,7 @@ export function SimpleCalculator() {
                 <div className="flex gap-2">
                   <Input
                     type="number"
-                    placeholder="Amount"
+                    placeholder={t("calculator.expenses.amount_placeholder")}
                     value={expense.amount}
                     onChange={(e) => updateExpense(index, "amount", e.target.value)}
                     className="text-senior-sm h-10"
@@ -112,7 +114,7 @@ export function SimpleCalculator() {
               className="w-full text-senior-sm"
             >
               <Plus className="h-4 w-4 mr-2" />
-              Add Category
+              {t("calculator.expenses.add")}
             </Button>
           </div>
         </Card>
@@ -126,25 +128,30 @@ export function SimpleCalculator() {
           className="h-16 px-12 text-senior-lg font-semibold bg-gradient-primary hover:shadow-gentle"
         >
           <Equal className="h-6 w-6 mr-3" />
-          Calculate Budget
+          {t("calculator.calculate")}
         </Button>
       </div>
 
       {/* Result */}
       {result !== null && (
-        <Card className={`p-6 text-center ${result >= 0 ? "bg-success" : "bg-destructive"} text-white`}>
+        <Card
+          className={`p-6 text-center ${
+            result >= 0 ? "bg-success" : "bg-destructive"
+          } text-white`}
+        >
           <div className="space-y-2">
             <p className="text-senior-base opacity-90">
-              {result >= 0 ? "Remaining Budget" : "Budget Deficit"}
+              {result >= 0
+                ? t("calculator.result.remaining")
+                : t("calculator.result.deficit")}
             </p>
             <p className="text-senior-2xl font-bold">
               ${Math.abs(result).toLocaleString()}
             </p>
             <p className="text-senior-sm opacity-80">
-              {result >= 0 
-                ? "Great! You're within budget." 
-                : "Consider reducing expenses or increasing income."
-              }
+              {result >= 0
+                ? t("calculator.result.positive_note")
+                : t("calculator.result.negative_note")}
             </p>
           </div>
         </Card>
