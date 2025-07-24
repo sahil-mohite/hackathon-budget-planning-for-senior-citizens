@@ -4,10 +4,11 @@ import { Mic, BarChart3, Shield, Globe } from "lucide-react";
 
 interface WelcomeSectionProps {
   onGetStarted: () => void;
-  userEmail?: string;
+  firstName?: string;
+  secondName?: string;
 }
 
-export function WelcomeSection({ onGetStarted, userEmail }: WelcomeSectionProps) {
+export function WelcomeSection({ onGetStarted, firstName, secondName }: WelcomeSectionProps) {
   const features = [
     {
       icon: Mic,
@@ -37,7 +38,7 @@ export function WelcomeSection({ onGetStarted, userEmail }: WelcomeSectionProps)
       <div className="text-center space-y-6">
         <div className="space-y-4">
           <h1 className="text-senior-2xl font-bold text-foreground">
-            Hi {userEmail}, Welcome to BudgetWise Senior
+            Hi {firstName} {secondName}, Welcome to BudgetWise Senior
           </h1>
           <p className="text-senior-lg text-muted-foreground max-w-2xl mx-auto">
             Manage your monthly budget effortlessly with voice assistance and AI-powered insights designed specifically for seniors.

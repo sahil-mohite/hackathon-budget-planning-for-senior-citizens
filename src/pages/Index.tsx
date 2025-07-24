@@ -11,12 +11,29 @@ import { Button } from "@/components/ui/button";
 import { Clock, HelpCircle, X } from "lucide-react";
 import { History } from "@/components/History";
 
+// Types
+interface FinancialDetails {
+  additionalDetails: string;
+  income: string;
+  getsPension: boolean;
+  pensionAmount: string;
+  investsInStocks: boolean;
+  yearlyStockInvestment: string;
+}
+
+interface UserData {
+  firstName: string;
+  lastName: string;
+  address: string;
+  phone: string;
+  financialDetails: FinancialDetails;
+}
+
 const Index = () => {
   const [activeSection, setActiveSection] = useState("home");
   const [transcript, setTranscript] = useState("");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-
-  const [userEmail, setUserEmail] = useState(""); // ✅ User email from JWT
+  const [userData, setUserData] = useState<UserData | null>(null);
   const [userLoading, setUserLoading] = useState(true);
 
   useEffect(() => {
@@ -28,7 +45,7 @@ const Index = () => {
       }
 
       try {
-        const res = await fetch("http://localhost:8000/home", {
+        const res = await fetch("http://localhost:8000/getUserData", {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -37,7 +54,7 @@ const Index = () => {
         const data = await res.json();
 
         if (res.ok) {
-          setUserEmail(data.email);
+          setUserData(data);
         } else {
           console.error("User fetch failed:", data);
         }
@@ -62,9 +79,19 @@ const Index = () => {
   };
 
   const renderContent = () => {
+    if (userLoading) {
+      return <p className="text-center text-muted-foreground">Loading user data...</p>;
+    }
+
     switch (activeSection) {
       case "home":
-        return <WelcomeSection onGetStarted={handleGetStarted} userEmail={userEmail} />;
+        return (
+          <WelcomeSection
+            onGetStarted={handleGetStarted}
+            firstName={userData?.firstName}
+            secondName={userData?.lastName}
+          />
+        );
 
       case "voice":
         return (
@@ -147,7 +174,13 @@ const Index = () => {
         );
 
       default:
-        return <WelcomeSection onGetStarted={handleGetStarted} userEmail={userEmail} />;
+        return (
+          <WelcomeSection
+            onGetStarted={handleGetStarted}
+            firstName={userData?.firstName}
+            secondName={userData?.lastName}
+          />
+        );
     }
   };
 
