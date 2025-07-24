@@ -136,6 +136,9 @@ export function VoiceRecorder() {
       setOutMessage(message);
     } catch (error) {
       console.error("Failed to send message:", error);
+      setOutMessage(
+        "An unexpected error occurred while processing your request."
+      );
     }
 
     // Update local chat
