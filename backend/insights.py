@@ -2,32 +2,24 @@
 import os
 import datetime
 import json
-from fastapi import Depends, FastAPI, APIRouter, HTTPException, Body, Path
-from pydantic import BaseModel, Field
-from typing import List, Optional, Dict, Any
-from bson import ObjectId
-import motor.motor_asyncio
+from fastapi import Depends, FastAPI, APIRouter, HTTPException, Path
+from typing import List
 import google.generativeai as genai
 from dotenv import load_dotenv
 from models import FinancialGoal, GoalInDB, ExpenseItem, InsightResponse
 from auth import get_current_user
+from database import item_collection, goal_collection
 
 # Load environment variables from .env file
 load_dotenv()
 
 # --- Configuration ---
-MONGO_DETAILS = os.environ.get("MONGO_DETAILS", "mongodb://localhost:27017")
 GOOGLE_API_KEY = os.environ.get("GOOGLE_API_KEY")
 
 # --- Initialize FastAPI Router ---
 # Using APIRouter allows us to keep these endpoints separate from main.py
 router = APIRouter()
 
-# --- Database Connection ---
-client = motor.motor_asyncio.AsyncIOMotorClient(MONGO_DETAILS)
-database = client.gemini_insights
-item_collection = database.get_collection("bill_items")
-goal_collection = database.get_collection("goals") # New collection for goals
 
 # --- Configure Gemini API ---
 if GOOGLE_API_KEY:
