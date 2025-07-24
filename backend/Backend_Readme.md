@@ -4,7 +4,7 @@ python -m venv venv
 
 venv/Scripts/activate
 
-pip install -r requirements.txt
+pip install -r ./backend/requirements.txt
 
 uvicorn image_text_processor:app --reload --port 8000
 uvicorn insights:router --reload --port 8080

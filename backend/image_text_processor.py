@@ -55,8 +55,9 @@ def fix_object_id(doc):
 async def process_data_and_store(
     user_id: str = Form(...),
     image: Optional[UploadFile] = File(None),
+    image_base64: Optional[str] = Form(None),  # add this line!
     user_explanation: Optional[str] = Form(None),
-    current_user: dict = Depends(get_current_user)
+    # current_user: dict = Depends(get_current_user)
 ):
     user_id = current_user["email"]
     if not image and not user_explanation:
@@ -95,7 +96,13 @@ async def process_data_and_store(
             pil_image = Image.open(io.BytesIO(contents))
             gemini_payload.append(pil_image)
             input_type = "image" if user_explanation else "image_only"
-
+        elif image_base64:
+            header, encoded = image_base64.split(",", 1)
+            image_bytes = base64.b64decode(encoded)
+            pil_image = Image.open(io.BytesIO(image_bytes))
+            gemini_payload.append(pil_image)
+            input_type = "image_base64" if user_explanation else "image_only_base64"
+        print(gemini_payload)
         model = genai.GenerativeModel("gemini-1.5-flash")
         response = await model.generate_content_async(gemini_payload)
         cleaned_text = response.text.replace("```json", "").replace("```", "").strip()

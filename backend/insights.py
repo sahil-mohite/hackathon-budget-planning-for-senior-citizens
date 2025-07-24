@@ -9,6 +9,7 @@ from dotenv import load_dotenv
 from models import FinancialGoal, GoalInDB, ExpenseItem, InsightResponse
 from auth_utils import get_current_user
 from database import item_collection, goal_collection
+from fastapi.middleware.cors import CORSMiddleware
 
 # Load environment variables from .env file
 load_dotenv()
@@ -17,8 +18,20 @@ load_dotenv()
 GOOGLE_API_KEY = os.environ.get("GOOGLE_API_KEY")
 
 # --- Initialize FastAPI Router ---
-# Using APIRouter allows us to keep these endpoints separate from main.py
+app = FastAPI()
+
+# ✅ Add CORS middleware here
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # or ["*"] for all origins
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# ✅ Then include your router
 router = APIRouter()
+app.include_router(router)
 
 
 # --- Configure Gemini API ---
@@ -61,7 +74,9 @@ async def set_financial_goal(goal: FinancialGoal, current_user: dict = Depends(g
 
 # --- Endpoint 2: Get User Expenses ---
 @router.get("/expenses/{user_id}", response_model=List[ExpenseItem])
-async def get_user_expenses(user_id: str = Path(..., description="The ID of the user to fetch expenses for.")):
+async def get_user_expenses(user_id: str = Path(..., description="The ID of the user to fetch expenses for.") 
+                           # current_user: dict = Depends(get_current_user)
+                            ):
     """
     Fetches all the bill items (expenses) from the database for a specific user.
     """
@@ -69,6 +84,9 @@ async def get_user_expenses(user_id: str = Path(..., description="The ID of the 
     expenses = await expenses_cursor.to_list(length=1000) # Capping at 1000 expenses for safety
     if not expenses:
         raise HTTPException(status_code=404, detail="No expenses found for this user.")
+   
+    for expense in expenses:
+        expense['id']=str(expense['_id'])
     return expenses
 
 
