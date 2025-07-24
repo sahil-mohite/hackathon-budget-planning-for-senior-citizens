@@ -3,6 +3,7 @@ import ExpenseLineChart from './ExpenseLineChart';
 import ExpensePieChart from './ExpensePieChart';
 import KpiCards from './KpiCards';
 import { Card } from '@/components/ui/card';
+import { useNavigate } from 'react-router-dom';
 
 interface RawExpense {
   store_name: string | null;
@@ -24,6 +25,7 @@ interface CategoryExpense {
 }
 
 const DashboardContainer = () => {
+  const navigate = useNavigate();
   const [dailyExpenses, setDailyExpenses] = useState<DailyExpense[]>([]);
   const [categoryBreakdown, setCategoryBreakdown] = useState<CategoryExpense[]>([]);
   const [loading, setLoading] = useState(true);
@@ -37,7 +39,13 @@ const DashboardContainer = () => {
           'Content-Type': 'application/json'
         }
       })
-      .then((res) => res.json())
+      .then((res) => {
+        if(res.status==401){
+          localStorage.removeItem('token')
+          navigate('/login')
+        }
+        return res.json()
+      })
       .then((rawData: RawExpense[])=>{
         console.log(rawData)
 
