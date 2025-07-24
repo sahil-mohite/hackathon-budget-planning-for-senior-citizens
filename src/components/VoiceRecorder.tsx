@@ -13,6 +13,8 @@ import {
   Bot,
   User,
 } from "lucide-react";
+import { ScrollDownButton } from "@/components/ScrollDownButton";
+import { Card } from "./ui/card";
 
 interface Message {
   sender: "user" | "bot";
@@ -20,6 +22,34 @@ interface Message {
   content: string;
   imageURL?: string;
 }
+
+const features = [
+  {
+    icon: "💰",
+    title: "Budget Planning",
+    desc: "Create a monthly budget plan",
+    gradient: "from-green-500 to-emerald-500",
+  },
+  {
+    icon: "📊",
+    title: "Expense Analysis",
+    desc: "Analyze your spending patterns",
+    gradient: "from-green-600 to-green-400",
+  },
+  {
+    icon: "🎯",
+    title: "Savings Goals",
+    desc: "Set and track savings targets",
+    gradient: "from-emerald-500 to-teal-500",
+  },
+  {
+    icon: "📱",
+    title: "Receipt Scanner",
+    desc: "Upload receipts for instant tracking",
+    gradient: "from-teal-500 to-green-600",
+  },
+];
+
 
 export function VoiceRecorder() {
   const [messages, setMessages] = useState<Message[]>([]);
@@ -37,12 +67,20 @@ export function VoiceRecorder() {
     useSpeechRecognition();
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    setTimeout(() => {
+      messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    }, 100);
   };
 
   useEffect(() => {
-    scrollToBottom();
+    if (messages.length > 0) {
+      const lastMessage = messages[messages.length - 1];
+      if (lastMessage.sender === "bot" || lastMessage.sender === "user") {
+        scrollToBottom();
+      }
+    }
   }, [messages]);
+
 
   useEffect(() => {
     if (!browserSupportsSpeechRecognition) {
@@ -54,16 +92,6 @@ export function VoiceRecorder() {
       alert("Microphone access is required.");
     });
   }, [browserSupportsSpeechRecognition]);
-
-  // useEffect(() => {
-  //   if (transcript && transcript !== lastTranscriptRef.current) {
-  //     const newPart = transcript.replace(lastTranscriptRef.current, "").trim();
-  //     if (newPart) {
-  //       setInput((prev) => `${prev} ${newPart}`.trim());
-  //     }
-  //     lastTranscriptRef.current = transcript;
-  //   }
-  // }, [transcript]);
 
   useEffect(() => {
     if (transcript && transcript !== lastTranscriptRef.current) {
@@ -204,22 +232,6 @@ export function VoiceRecorder() {
     resetTranscript();
     lastTranscriptRef.current = "";
     setIsTyping(true);
-
-    // Simulated bot reply with typing animation
-
-    // setTimeout(() => {
-    //   setIsTyping(false);
-    //   setMessages((prev) => [
-    //     ...prev,
-    //     {
-    //       sender: "bot",
-    //       type: "text",
-    //       content: `I understand you said: "${
-    //         trimmedInput || "[image only]"
-    //       }".`,
-    //     },
-    //   ]);
-    // }, 1500);
   };
   useEffect(() => {
     if (!outMessage) return; // optionally skip if empty or null
@@ -241,16 +253,6 @@ export function VoiceRecorder() {
     // Cleanup timeout if outMessage changes again or component unmounts
     return () => clearTimeout(timer);
   }, [outMessage]);
-
-  // const startListening = () => {
-  //   SpeechRecognition.startListening({ continuous: true, language: "en-IN" });
-  //   setIsListening(true);
-  // };
-
-  // const stopListening = () => {
-  //   SpeechRecognition.stopListening();
-  //   setIsListening(false);
-  // };
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -278,86 +280,35 @@ export function VoiceRecorder() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-green-100 flex flex-col">
-      {/* Header */}
-      {/* <div className="backdrop-blur-lg bg-green-600/95 border-b border-green-500/20 px-6 py-4 shadow-lg">
-        <div className="max-w-4xl mx-auto flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-gradient-to-r from-green-500 to-emerald-500 rounded-xl flex items-center justify-center">
-              <Sparkles className="w-6 h-6 text-white" />
-            </div>
-            <div>
-              <h1 className="text-xl font-bold text-white">BudgetGPT</h1>
-              <p className="text-sm text-green-100">Your AI Financial Assistant</p>
-            </div>
-          </div>
-          <div className="flex items-center space-x-2 text-sm text-green-100">
-            <div className="w-2 h-2 bg-green-300 rounded-full animate-pulse"></div>
-            <span>Online</span>
-          </div>
-        </div>
-      </div> */}
-
+    <div className="min-h-screen bg-gradient-to-br flex flex-col">
       {/* Chat Area */}
+      <div className="text-center space-y-2">
+        <p className="text-xl font-semibold text-accent-foreground">
+          Speak naturally about your income and expenses
+        </p>
+      </div>
       <div className="flex-1 overflow-hidden">
         <div className="max-w-4xl mx-auto h-full flex flex-col">
           {messages.length === 0 ? (
             // Welcome Screen
             <div className="flex-1 flex items-center justify-center px-6">
               <div className="text-center space-y-8 max-w-2xl">
-                <div className="space-y-4">
-                  {/* <div className="w-20 h-20 bg-gradient-to-r from-green-500 to-emerald-500 rounded-3xl flex items-center justify-center mx-auto shadow-lg">
-                    <Sparkles className="w-10 h-10 text-white" />
-                  </div> */}
-                  {/* <h2 className="text-4xl font-bold text-gray-800">
-                    How can I help you today?
-                  </h2> */}
-                  <p className="text-xl text-gray-600">
-                    Ask me about budgeting, expenses, savings, or upload
-                    receipts for analysis
-                  </p>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-12">
-                  {[
-                    {
-                      title: "💰 Budget Planning",
-                      desc: "Create a monthly budget plan",
-                      gradient: "from-green-500 to-emerald-500",
-                    },
-                    {
-                      title: "📊 Expense Analysis",
-                      desc: "Analyze your spending patterns",
-                      gradient: "from-green-600 to-green-400",
-                    },
-                    {
-                      title: "🎯 Savings Goals",
-                      desc: "Set and track savings targets",
-                      gradient: "from-emerald-500 to-teal-500",
-                    },
-                    {
-                      title: "📱 Receipt Scanner",
-                      desc: "Upload receipts for instant tracking",
-                      gradient: "from-teal-500 to-green-600",
-                    },
-                  ].map((item, index) => (
-                    <div
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mt-8">
+                  {features.map((item, index) => (
+                    <Card
                       key={index}
-                      className="group cursor-pointer p-6 rounded-2xl bg-white/80 backdrop-blur-sm border border-green-200 hover:bg-white/95 hover:border-green-300 transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-xl"
-                      // onClick={() => setInput(item.desc)}
+                      className="flex flex-col gap-3 p-4 rounded-xl border border-green-200 shadow-sm bg-white hover:shadow-md transition-all"
                     >
-                      <div
-                        className={`w-12 h-12 bg-gradient-to-r ${item.gradient} rounded-xl flex items-center justify-center mb-3`}
-                      >
-                        <span className="text-2xl">
-                          {item.title.split(" ")[0]}
-                        </span>
+                      <div className="flex justify-center">
+                        <div
+                          className={`w-12 h-12 rounded-lg bg-gradient-to-r ${item.gradient} flex items-center justify-center text-white`}
+                        >
+                          <span className="text-xl">{item.icon}</span>
+                        </div>
                       </div>
-                      <h3 className="text-gray-800 font-semibold mb-2">
-                        {item.title.slice(2)}
-                      </h3>
-                      <p className="text-gray-600 text-sm">{item.desc}</p>
-                    </div>
+                      <p className="text-sm text-black-600 text-center">{item.desc}</p>
+                    </Card>
+
                   ))}
                 </div>
               </div>
@@ -368,18 +319,16 @@ export function VoiceRecorder() {
               {messages.map((msg, index) => (
                 <div
                   key={index}
-                  className={`flex items-start space-x-4 ${
-                    msg.sender === "user"
-                      ? "flex-row-reverse space-x-reverse"
-                      : ""
-                  }`}
+                  className={`flex items-start space-x-4 ${msg.sender === "user"
+                    ? "flex-row-reverse space-x-reverse"
+                    : ""
+                    }`}
                 >
                   <div
-                    className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${
-                      msg.sender === "user"
-                        ? "bg-gradient-to-r from-green-500 to-emerald-500"
-                        : "bg-gradient-to-r from-white to-gray-100 border border-green-200"
-                    }`}
+                    className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${msg.sender === "user"
+                      ? "bg-gradient-to-r from-green-500 to-emerald-500"
+                      : "bg-gradient-to-r from-white to-gray-100 border border-green-200"
+                      }`}
                   >
                     {msg.sender === "user" ? (
                       <User className="w-5 h-5 text-white" />
@@ -389,16 +338,14 @@ export function VoiceRecorder() {
                   </div>
 
                   <div
-                    className={`flex-1 max-w-3xl ${
-                      msg.sender === "user" ? "text-right" : ""
-                    }`}
+                    className={`flex-1 max-w-3xl ${msg.sender === "user" ? "text-right" : ""
+                      }`}
                   >
                     <div
-                      className={`inline-block p-4 rounded-2xl ${
-                        msg.sender === "user"
-                          ? "bg-gradient-to-r from-green-500 to-emerald-500 text-white shadow-lg"
-                          : "bg-white/90 backdrop-blur-sm text-gray-800 border border-green-200 shadow-md"
-                      }`}
+                      className={`inline-block p-4 rounded-2xl ${msg.sender === "user"
+                        ? "bg-gradient-to-r from-green-500 to-emerald-500 text-white shadow-lg"
+                        : "bg-white/90 backdrop-blur-sm text-gray-800 border border-green-200 shadow-md"
+                        }`}
                     >
                       {msg.imageURL && (
                         <img
@@ -441,9 +388,8 @@ export function VoiceRecorder() {
 
           {/* Input Area */}
           <div
-            className={`border-t border-green-200 backdrop-blur-lg bg-white/80 p-6 shadow-lg ${
-              messages.length === 0 ? "mt-8" : ""
-            }`}
+            className={`border-t border-green-200 backdrop-blur-lg bg-white/80 p-6 shadow-lg ${messages.length === 0 ? "mt-8" : ""
+              }`}
           >
             {imagePreview && (
               <div className="relative inline-block mb-4">
@@ -508,28 +454,12 @@ export function VoiceRecorder() {
                   />
                 </button>
 
-                {/* <button
-                  onClick={isListening ? stopListening : startListening}
-                  className={`p-3 rounded-xl transition-all duration-200 shadow-md hover:shadow-lg ${
-                    isListening
-                      ? "bg-red-500 hover:bg-red-600 animate-pulse"
-                      : "bg-green-500 hover:bg-green-600"
-                  } text-white`}
-                >
-                  {isListening ? (
-                    <MicOff className="w-5 h-5" />
-                  ) : (
-                    <Mic className="w-5 h-5" />
-                  )}
-                </button> */}
-
                 <button
                   onClick={isListening ? stopListening : startListening}
-                  className={`relative p-3 rounded-xl shadow-md hover:shadow-lg transition-all duration-200 ${
-                    isListening
-                      ? "bg-red-600"
-                      : "bg-green-500 hover:bg-green-600"
-                  } text-white`}
+                  className={`relative p-3 rounded-xl shadow-md hover:shadow-lg transition-all duration-200 ${isListening
+                    ? "bg-red-600"
+                    : "bg-green-500 hover:bg-green-600"
+                    } text-white`}
                 >
                   {/* Animated Pulse Ring when listening */}
                   {isListening && (
@@ -555,6 +485,21 @@ export function VoiceRecorder() {
           </div>
         </div>
       </div>
+      <ScrollDownButton
+        onClick={() => {
+          window.scrollBy({ top: window.innerHeight, behavior: "smooth" });
+        }}
+      />
+      {transcript && (
+        <Card className="p-3 bg-accent w-full max-w-md mx-auto">
+          <h3 className="text-sm font-medium text-accent-foreground mb-1">
+            Processing your input...
+          </h3>
+          <p className="text-xs text-accent-foreground">
+            AI is analyzing: "{transcript}"
+          </p>
+        </Card>
+      )}
     </div>
   );
 }

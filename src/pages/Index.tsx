@@ -5,11 +5,10 @@ import { WelcomeSection } from "@/components/WelcomeSection";
 import { VoiceRecorder } from "@/components/VoiceRecorder";
 import { BudgetDashboard } from "@/components/BudgetDashboard";
 import { SimpleCalculator } from "@/components/SimpleCalculator";
-import { Card } from "@/components/ui/card";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { HelpSection } from "@/components/HelpSection";
-import { Clock, HelpCircle, X } from "lucide-react";
+import { X } from "lucide-react";
 import { History } from "@/components/History";
 
 // Types
@@ -96,25 +95,7 @@ const Index = () => {
         );
 
       case "voice":
-        return (
-          <div className="space-y-6">
-            <div className="text-center space-y-2">
-              <h2 className="text-senior-xl font-bold text-foreground">Voice Budget Input</h2>
-              <p className="text-senior-base text-muted-foreground">
-                Speak naturally about your income and expenses
-              </p>
-            </div>
-            <VoiceRecorder />
-            {transcript && (
-              <Card className="p-4 bg-accent">
-                <h3 className="text-senior-base font-medium text-accent-foreground mb-2">
-                  Processing your input...
-                </h3>
-                <p className="text-senior-sm text-accent-foreground">AI is analyzing: "{transcript}"</p>
-              </Card>
-            )}
-          </div>
-        );
+        return <VoiceRecorder />;
 
       case "dashboard":
         return <BudgetDashboard />;
@@ -124,7 +105,7 @@ const Index = () => {
 
       case "history":
         return (
-          <History/>
+          <History />
         );
 
       case "help":
@@ -145,7 +126,7 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <Header onMenuToggle={() => setMobileMenuOpen(!mobileMenuOpen)} showMenuButton={true} userData={userData}/>
+      <Header onMenuToggle={() => setMobileMenuOpen(!mobileMenuOpen)} showMenuButton={true} userData={userData} />
 
       {mobileMenuOpen && (
         <div className="fixed inset-0 z-50 lg:hidden">

@@ -2,6 +2,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Mic, BarChart3, Shield, Globe } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { ScrollDownButton } from "@/components/ScrollDownButton";
 
 interface WelcomeSectionProps {
   onGetStarted: () => void;
@@ -36,90 +37,58 @@ export function WelcomeSection({ onGetStarted, firstName, secondName }: WelcomeS
   ];
 
   return (
-    <div className="space-y-12"> {/* increased spacing */}
+    <div className="min-h-screen flex flex-col justify-center items-center px-4 py-6 space-y-8 overflow-auto">
       {/* Hero Section */}
-      <div className="text-center space-y-6">
-        <div className="space-y-4">
-          <h1 className="text-senior-2xl font-bold text-foreground">
-            Hi {firstName} {secondName}, {t("welcome.title")}
-          </h1>
-          <p className="text-senior-lg text-muted-foreground max-w-2xl mx-auto">
-            {t("welcome.description")}
-          </p>
-        </div>
+      <div className="text-center space-y-4">
+        <h1 className="text-2xl sm:text-3xl font-bold text-foreground">
+          Hi {firstName} {secondName}, {t("welcome.title")}
+        </h1>
+        <p className="text-base text-muted-foreground max-w-xl mx-auto">
+          {t("welcome.description")}
+        </p>
 
         <Button
           onClick={onGetStarted}
-          size="lg"
-          className="h-16 px-12 text-senior-lg font-semibold bg-gradient-primary hover:shadow-gentle transition-all duration-300"
+          size="sm"
+          className="h-12 px-5 text-base font-semibold bg-gradient-primary text-white rounded-full shadow-md hover:shadow-lg hover:scale-105 hover:ring-2 hover:ring-offset-1 hover:ring-primary transition-all duration-300"
         >
-          <Mic className="h-6 w-6 mr-3" />
+          <Mic className="h-4 w-4 mr-2" />
           {t("welcome.get_started")}
         </Button>
-
       </div>
 
-      {/* Features Grid */}
-      {/* <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-10 px-4">
+      {/* Features Section */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 w-full max-w-6xl text-sm mb-6">
         {features.map((feature, index) => {
           const Icon = feature.icon;
           return (
             <Card
               key={index}
-              className="p-8 hover:shadow-gentle transition-all duration-300 bg-gradient-subtle border-border"
-              className="p-6 hover:shadow-gentle transition-all duration-300 bg-gradient-subtle border-border"
+              className="flex flex-col items-center text-center p-4 rounded-xl border border-[#C8F7DC] shadow-sm bg-white"
+              style={{ height: "160px" }}
             >
-              <div className="space-y-4">
-                <div className="w-16 h-16 bg-primary/10 rounded-lg flex items-center justify-center">
-                  <Icon className="h-8 w-8 text-primary" />
-                </div>
-                <div className="space-y-2">
-                  <h3 className="text-senior-lg font-semibold text-foreground">
-                    {feature.title}
-                  </h3>
-                  <p className="text-senior-base text-muted-foreground">
-                    {feature.description}
-                  </p>
-                </div>
+              <div className="w-10 h-10 mb-2 bg-[#E6F9EF] rounded-md flex items-center justify-center">
+                <Icon className="h-5 w-5 text-green-600" />
               </div>
-            </Card>
-          );
-        })}
-      </div> */}
-
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 max-w-3xl mx-auto px-4">
-        {features.map((feature, index) => {
-          const Icon = feature.icon;
-          return (
-            <Card
-              key={index}
-              className="flex flex-col items-center text-center p-6 rounded-2xl border border-[#C8F7DC] shadow-md bg-white transition-transform hover:scale-[1.02]"
-              style={{ height: "180px", minWidth: "240px" }}
-            >
-              <div className="w-12 h-12 mb-3 bg-[#E6F9EF] rounded-lg flex items-center justify-center">
-                <Icon className="h-6 w-6 text-green-600" />
-              </div>
-              <h3 className="font-semibold text-[17px] text-gray-900">{feature.title}</h3>
+              <h3 className="font-semibold text-base text-gray-900">{feature.title}</h3>
               <p className="text-sm text-gray-500 mt-1">{feature.description}</p>
             </Card>
           );
         })}
       </div>
-
-
       {/* Quick Start Tips */}
-      <Card className="p-6 bg-accent border-border mx-4">
-        <div className="space-y-4">
-          <h3 className="text-senior-lg font-semibold text-accent-foreground">
+      <Card className="p-4 lg:p-3 bg-accent border-border w-full max-w-3xl text-sm">
+        <div className="space-y-3">
+          <h3 className="text-lg font-semibold text-accent-foreground">
             {t("welcome.quick_start")}
           </h3>
-          <div className="space-y-3">
+          <div className="space-y-2">
             {[1, 2, 3].map((step) => (
               <div key={step} className="flex items-start gap-3">
-                <div className="w-6 h-6 bg-primary rounded-full flex items-center justify-center text-primary-foreground text-sm font-bold">
+                <div className="w-6 h-6 bg-primary rounded-full flex items-center justify-center text-primary-foreground text-xs font-bold">
                   {step}
                 </div>
-                <p className="text-senior-base text-accent-foreground">
+                <p className="text-sm text-accent-foreground">
                   {t(`welcome.step${step}`)}
                 </p>
               </div>
@@ -127,6 +96,13 @@ export function WelcomeSection({ onGetStarted, firstName, secondName }: WelcomeS
           </div>
         </div>
       </Card>
+
+      {/* Scroll Button */}
+      <ScrollDownButton
+        onClick={() => {
+          window.scrollBy({ top: window.innerHeight, behavior: "smooth" });
+        }}
+      />
     </div>
   );
 }

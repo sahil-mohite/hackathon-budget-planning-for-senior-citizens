@@ -2,6 +2,7 @@ import {
   BarChart,
 } from "lucide-react";
 import DashboardContainer from "./dashboardCharts/DashboardContainer";
+import { ScrollDownButton } from "./ScrollDownButton";
 
 
 export function BudgetDashboard() {
@@ -23,8 +24,13 @@ export function BudgetDashboard() {
         <BarChart className="h-6 w-6 text-primary" />
         Analytics Overview
       </h3>
-      <DashboardContainer/>
-
+      <DashboardContainer />
+      {/* Scroll Button */}
+      <ScrollDownButton
+        onClick={() => {
+          window.scrollBy({ top: window.innerHeight, behavior: "smooth" });
+        }}
+      />
     </div>
   );
 }

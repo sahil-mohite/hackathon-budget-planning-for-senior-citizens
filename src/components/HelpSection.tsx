@@ -2,6 +2,7 @@ import React from "react";
 import { useTranslation } from "react-i18next";
 import { Card } from "@/components/ui/card";
 import { HelpCircle } from "lucide-react";
+import { ScrollDownButton } from "./ScrollDownButton";
 
 export const HelpSection = () => {
     const { t } = useTranslation();
@@ -44,6 +45,11 @@ export const HelpSection = () => {
                     </ul>
                 </Card>
             </div>
+            <ScrollDownButton
+                onClick={() => {
+                    window.scrollBy({ top: window.innerHeight, behavior: "smooth" });
+                }}
+            />
         </div>
     );
 };

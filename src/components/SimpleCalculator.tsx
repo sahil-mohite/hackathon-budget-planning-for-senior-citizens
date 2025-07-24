@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Calculator, Plus, Minus, Equal } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { ScrollDownButton } from "./ScrollDownButton";
 
 export function SimpleCalculator() {
   const { t } = useTranslation();
@@ -135,9 +136,8 @@ export function SimpleCalculator() {
       {/* Result */}
       {result !== null && (
         <Card
-          className={`p-6 text-center ${
-            result >= 0 ? "bg-success" : "bg-destructive"
-          } text-white`}
+          className={`p-6 text-center ${result >= 0 ? "bg-success" : "bg-destructive"
+            } text-white`}
         >
           <div className="space-y-2">
             <p className="text-senior-base opacity-90">
@@ -156,6 +156,11 @@ export function SimpleCalculator() {
           </div>
         </Card>
       )}
+      <ScrollDownButton
+        onClick={() => {
+          window.scrollBy({ top: window.innerHeight, behavior: "smooth" });
+        }}
+      />
     </div>
   );
 }

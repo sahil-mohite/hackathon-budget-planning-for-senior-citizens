@@ -25,6 +25,7 @@ import {
     AlertDialogAction,
 } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
+import { ScrollDownButton } from "./ScrollDownButton";
 
 // Schema
 const ExpenseSchema = z.object({
@@ -59,6 +60,19 @@ export const History = () => {
             //   const res = await fetch("http://localhost:8000/expenses");
             //   const data = await res.json();
             const data = [{
+                "id": "68820924e7071958281175f3",
+                "user_id": "abc@gmail.com",
+                "store_name": "Krishna Services",
+                "bill_date": "2023-04-01",
+                "total_amount": 7000,
+                "input_type": "image",
+                "created_at": "2025-07-24T10:21:24.012Z",
+                "item_name": "W/m Rent",
+                "quantity": 400,
+                "unit_price": 12,
+                "category": "Other"
+            },
+        {
                 "id": "68820924e7071958281175f3",
                 "user_id": "abc@gmail.com",
                 "store_name": "Krishna Services",
@@ -233,6 +247,13 @@ export const History = () => {
                     </Tbody>
                 </Table>
             </div>
+                  {/* Scroll Button */}
+                  <ScrollDownButton
+                    onClick={() => {
+                      window.scrollBy({ top: window.innerHeight, behavior: "smooth" });
+                    }}
+                  />
         </Card>
+        
     );
 };
