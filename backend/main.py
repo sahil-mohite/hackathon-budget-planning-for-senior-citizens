@@ -11,7 +11,7 @@ from typing import Optional, List
 from auth import hash_password, verify_password, create_jwt_token, get_current_user
 from models import SignUpRequest, SignInRequest, TokenResponse, ProcessedItemInDB
 from fastapi.security import OAuth2PasswordBearer
-from localDB import users_collection, item_collection
+from database import users_collection, item_collection
 
 import google.generativeai as genai
 from PIL import Image
