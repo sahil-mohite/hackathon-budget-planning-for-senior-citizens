@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import {
@@ -9,25 +10,17 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Globe, Check } from "lucide-react";
+import i18n from "@/lib/i18n";
 
 interface Language {
   code: string;
-  name: string;
-  nativeName: string;
   flag: string;
 }
 
 const languages: Language[] = [
-  { code: "en", name: "English", nativeName: "English", flag: "🇺🇸" },
-  { code: "es", name: "Spanish", nativeName: "Español", flag: "🇪🇸" },
-  { code: "fr", name: "French", nativeName: "Français", flag: "🇫🇷" },
-  { code: "de", name: "German", nativeName: "Deutsch", flag: "🇩🇪" },
-  { code: "it", name: "Italian", nativeName: "Italiano", flag: "🇮🇹" },
-  { code: "pt", name: "Portuguese", nativeName: "Português", flag: "🇵🇹" },
-  { code: "hi", name: "Hindi", nativeName: "हिन्दी", flag: "🇮🇳" },
-  { code: "zh", name: "Chinese", nativeName: "中文", flag: "🇨🇳" },
-  { code: "ja", name: "Japanese", nativeName: "日本語", flag: "🇯🇵" },
-  { code: "ar", name: "Arabic", nativeName: "العربية", flag: "🇸🇦" },
+  { code: "en", flag: "🇺🇸" },
+  { code: "de", flag: "🇩🇪" },
+  { code: "hi", flag: "🇮🇳" },
 ];
 
 interface LanguageSelectorProps {
@@ -36,19 +29,21 @@ interface LanguageSelectorProps {
   variant?: "dropdown" | "grid";
 }
 
-export function LanguageSelector({ 
-  currentLanguage = "en", 
+export function LanguageSelector({
+  currentLanguage = "en",
   onLanguageChange,
-  variant = "dropdown" 
+  variant = "dropdown",
 }: LanguageSelectorProps) {
   const [selectedLanguage, setSelectedLanguage] = useState(currentLanguage);
+  const { t } = useTranslation();
 
   const handleLanguageChange = (languageCode: string) => {
     setSelectedLanguage(languageCode);
+    i18n.changeLanguage(languageCode);
     onLanguageChange?.(languageCode);
   };
 
-  const currentLang = languages.find(lang => lang.code === selectedLanguage);
+  const currentLang = languages.find((lang) => lang.code === selectedLanguage);
 
   if (variant === "dropdown") {
     return (
@@ -56,22 +51,24 @@ export function LanguageSelector({
         <SelectTrigger className="w-[180px] h-12 text-senior-base">
           <div className="flex items-center gap-2">
             <Globe className="h-5 w-5 text-primary" />
-            <SelectValue placeholder="Select language" />
+            <SelectValue placeholder={t("language.select_placeholder")} />
           </div>
         </SelectTrigger>
         <SelectContent className="bg-card border-border">
           {languages.map((language) => (
-            <SelectItem 
-              key={language.code} 
+            <SelectItem
+              key={language.code}
               value={language.code}
               className="text-senior-base cursor-pointer hover:bg-accent"
             >
               <div className="flex items-center gap-3 py-1">
                 <span className="text-lg">{language.flag}</span>
                 <div className="flex flex-col">
-                  <span className="font-medium">{language.name}</span>
+                  <span className="font-medium">
+                    {t(`language.${language.code}.name`)}
+                  </span>
                   <span className="text-sm text-muted-foreground">
-                    {language.nativeName}
+                    {t(`language.${language.code}.native`)}
                   </span>
                 </div>
               </div>
@@ -86,18 +83,20 @@ export function LanguageSelector({
     <div className="space-y-4">
       <h3 className="text-senior-lg font-semibold text-foreground flex items-center gap-2">
         <Globe className="h-6 w-6 text-primary" />
-        Select Your Language
+        {t("language.select_title")}
       </h3>
-      
+
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
         {languages.map((language) => (
           <Button
             key={language.code}
-            variant={selectedLanguage === language.code ? "default" : "outline"}
+            variant={
+              selectedLanguage === language.code ? "default" : "outline"
+            }
             onClick={() => handleLanguageChange(language.code)}
             className={`h-16 justify-start text-left transition-all duration-200 ${
-              selectedLanguage === language.code 
-                ? "bg-gradient-primary text-primary-foreground shadow-gentle" 
+              selectedLanguage === language.code
+                ? "bg-gradient-primary text-primary-foreground shadow-gentle"
                 : "hover:bg-secondary hover:text-secondary-foreground"
             }`}
           >
@@ -105,10 +104,10 @@ export function LanguageSelector({
               <span className="text-xl">{language.flag}</span>
               <div className="flex flex-col items-start">
                 <span className="text-senior-sm font-medium">
-                  {language.name}
+                  {t(`language.${language.code}.name`)}
                 </span>
                 <span className="text-xs opacity-75">
-                  {language.nativeName}
+                  {t(`language.${language.code}.native`)}
                 </span>
               </div>
               {selectedLanguage === language.code && (
@@ -118,10 +117,12 @@ export function LanguageSelector({
           </Button>
         ))}
       </div>
-      
+
       <Card className="p-4 bg-accent">
         <p className="text-senior-sm text-accent-foreground">
-          <strong>Current Language:</strong> {currentLang?.flag} {currentLang?.name} ({currentLang?.nativeName})
+          <strong>{t("language.current")}</strong>{" "}
+          {currentLang?.flag} {t(`language.${currentLang?.code}.name`)} (
+          {t(`language.${currentLang?.code}.native`)})
         </p>
       </Card>
     </div>
