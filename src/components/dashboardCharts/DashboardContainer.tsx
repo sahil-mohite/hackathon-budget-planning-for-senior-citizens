@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import ExpenseLineChart from './ExpenseLineChart';
 import ExpensePieChart from './ExpensePieChart';
+import BarChart from './BarChart';
 import KpiCards from './KpiCards';
 import { Card } from '@/components/ui/card';
 
@@ -31,15 +32,16 @@ const DashboardContainer = () => {
   useEffect(() => {
     const token = localStorage.getItem("token");
     fetch('http://localhost:8090/expenses', {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      })
+    // fetch('/newData.json',{
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }
+    })
       .then((res) => res.json())
-      .then((rawData: RawExpense[])=>{
-        console.log(rawData)
+      .then((rawData: RawExpense[]) => {
+        console.log(rawData);
 
         const dailyMap = new Map<string, number>();
         const categoryMap = new Map<string, number>();
@@ -48,9 +50,8 @@ const DashboardContainer = () => {
           if (item.unit_price !== null) {
             const cost = item.quantity * item.unit_price;
 
-            const day = item.bill_date; // use actual date string
+            const day = item.bill_date;
             dailyMap.set(day, (dailyMap.get(day) || 0) + cost);
-
             categoryMap.set(item.category, (categoryMap.get(item.category) || 0) + cost);
           }
         });
@@ -75,46 +76,45 @@ const DashboardContainer = () => {
 
   if (loading) return <p className="p-4">Loading...</p>;
 
+  const noData = dailyExpenses.length === 0 && categoryBreakdown.length === 0;
+
+  if (noData) {
+    return <p className="p-4 text-center text-gray-600">No Analytics available for user.</p>;
+  }
+
   return (
-    <div style={{ display:'flex', flexDirection:'column' }}>
-      <Card style={{padding:'2rem'} }>
+    <div style={{ display: 'flex', flexDirection: 'column' }}>
+      <Card style={{ padding: '2rem' }}>
         <ExpenseLineChart data={dailyExpenses} />
       </Card>
 
-<div style={{
-  display: 'flex', 
-  marginTop: '1rem',
-  gap: '1rem',
-  flexWrap: 'wrap'
-}}>
-  <Card style={{ 
-    flex: '1 1 300px',
-    minWidth: '300px',
-    display: 'flex', 
-    justifyContent: 'center'
-  }}>
-    <ExpensePieChart data={categoryBreakdown} />
-  </Card>
-  
-  <Card style={{ 
-    flex: '1 1 300px',
-    minWidth: '300px',
-    display: 'flex', 
-    justifyContent: 'center'
-  }}>
-    <ExpensePieChart data={categoryBreakdown} />
-  </Card>
-</div>
+      <div style={{
+        display: 'flex',
+        marginTop: '1rem',
+        gap: '1rem',
+        flexWrap: 'wrap'
+      }}>
+        <Card style={{
+          flex: '1 1 300px',
+          minWidth: '300px',
+          display: 'flex',
+          justifyContent: 'center'
+        }}>
+          <ExpensePieChart data={categoryBreakdown} />
+        </Card>
 
+        <Card style={{
+          flex: '1 1 300px',
+          minWidth: '300px',
+          display: 'flex',
+          justifyContent: 'center',
+          padding: '2rem'
+        }}>
+          <BarChart data={dailyExpenses} />
+        </Card>
+      </div>
 
       <KpiCards dailyExpenses={dailyExpenses} categoryBreakdown={categoryBreakdown} />
-      {/* <Card className="dashboard">
-        <div className="flex justify-evenly flex-wrap gap-4 py-4">
-          <ExpenseLineChart data={dailyExpenses} />
-          <ExpensePieChart data={categoryBreakdown} />
-          <KpiCards dailyExpenses={dailyExpenses} categoryBreakdown={categoryBreakdown} />
-        </div>
-      </Card> */}
     </div>
   );
 };
