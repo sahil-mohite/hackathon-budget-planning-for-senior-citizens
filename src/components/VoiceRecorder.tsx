@@ -29,6 +29,7 @@ export function VoiceRecorder() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const lastTranscriptRef = useRef("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const silenceTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   const { transcript, resetTranscript, browserSupportsSpeechRecognition } =
     useSpeechRecognition();
@@ -52,6 +53,18 @@ export function VoiceRecorder() {
     });
   }, [browserSupportsSpeechRecognition]);
 
+  // useEffect(() => {
+  //   if (transcript && transcript !== lastTranscriptRef.current) {
+  //     const newPart = transcript.replace(lastTranscriptRef.current, "").trim();
+  //     if (newPart) {
+  //       setInput((prev) => `${prev} ${newPart}`.trim());
+  //     }
+  //     lastTranscriptRef.current = transcript;
+  //   }
+  // }, [transcript]);
+
+
+
   useEffect(() => {
     if (transcript && transcript !== lastTranscriptRef.current) {
       const newPart = transcript.replace(lastTranscriptRef.current, "").trim();
@@ -59,8 +72,40 @@ export function VoiceRecorder() {
         setInput((prev) => `${prev} ${newPart}`.trim());
       }
       lastTranscriptRef.current = transcript;
+
+      // Reset silence timer
+      if (silenceTimerRef.current) {
+        clearTimeout(silenceTimerRef.current);
+      }
+      silenceTimerRef.current = setTimeout(() => {
+        stopListening();
+      }, 5000); // 5 seconds of silence
     }
   }, [transcript]);
+
+  useEffect(() => {
+    return () => {
+      if (silenceTimerRef.current) {
+        clearTimeout(silenceTimerRef.current);
+      }
+    };
+  }, []);
+
+  const startListening = () => {
+    SpeechRecognition.startListening({ continuous: true, language: "en-IN" });
+    setIsListening(true);
+  };
+
+  const stopListening = () => {
+    SpeechRecognition.stopListening();
+    setIsListening(false);
+
+    if (silenceTimerRef.current) {
+      clearTimeout(silenceTimerRef.current);
+      silenceTimerRef.current = null;
+    }
+  };
+
 
   const handleSend = async () => {
     const trimmedInput = input.trim();
@@ -138,15 +183,15 @@ export function VoiceRecorder() {
     }, 1500);
   };
 
-  const startListening = () => {
-    SpeechRecognition.startListening({ continuous: true, language: "en-IN" });
-    setIsListening(true);
-  };
+  // const startListening = () => {
+  //   SpeechRecognition.startListening({ continuous: true, language: "en-IN" });
+  //   setIsListening(true);
+  // };
 
-  const stopListening = () => {
-    SpeechRecognition.stopListening();
-    setIsListening(false);
-  };
+  // const stopListening = () => {
+  //   SpeechRecognition.stopListening();
+  //   setIsListening(false);
+  // };
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -237,7 +282,7 @@ export function VoiceRecorder() {
                     <div
                       key={index}
                       className="group cursor-pointer p-6 rounded-2xl bg-white/80 backdrop-blur-sm border border-green-200 hover:bg-white/95 hover:border-green-300 transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-xl"
-                      onClick={() => setInput(item.desc)}
+                      // onClick={() => setInput(item.desc)}
                     >
                       <div
                         className={`w-12 h-12 bg-gradient-to-r ${item.gradient} rounded-xl flex items-center justify-center mb-3`}
@@ -397,7 +442,7 @@ export function VoiceRecorder() {
                   />
                 </button>
 
-                <button
+                {/* <button
                   onClick={isListening ? stopListening : startListening}
                   className={`p-3 rounded-xl transition-all duration-200 shadow-md hover:shadow-lg ${
                     isListening
@@ -410,8 +455,27 @@ export function VoiceRecorder() {
                   ) : (
                     <Mic className="w-5 h-5" />
                   )}
-                </button>
+                </button> */}
 
+<button
+  onClick={isListening ? stopListening : startListening}
+  className={`relative p-3 rounded-xl shadow-md hover:shadow-lg transition-all duration-200 ${
+    isListening ? "bg-red-600" : "bg-green-500 hover:bg-green-600"
+  } text-white`}
+>
+  {/* Animated Pulse Ring when listening */}
+  {isListening && (
+    <span className="absolute inset-0 rounded-xl border-2 border-red-400 animate-ping opacity-75"></span>
+  )}
+
+  {isListening ? (
+    <Mic className="w-5 h-5 relative z-10" />
+  ) : (
+    <Mic className="w-5 h-5" />
+  )}
+</button>
+
+                
                 <button
                   onClick={handleSend}
                   disabled={!input.trim() && !imagePreview}
