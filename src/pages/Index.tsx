@@ -10,7 +10,6 @@ import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { HelpSection } from "@/components/HelpSection";
 import { HistorySection } from "@/components/HistorySection";
-import { X } from "lucide-react";
 import { Clock, HelpCircle, X } from "lucide-react";
 import { History } from "@/components/History";
 
