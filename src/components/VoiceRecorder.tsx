@@ -30,6 +30,7 @@ export function VoiceRecorder() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const lastTranscriptRef = useRef("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const silenceTimerRef = useRef<NodeJS.Timeout | null>(null);
   const [outMessage, setOutMessage] = useState<string>("");
 
   const { transcript, resetTranscript, browserSupportsSpeechRecognition } =
@@ -54,6 +55,18 @@ export function VoiceRecorder() {
     });
   }, [browserSupportsSpeechRecognition]);
 
+  // useEffect(() => {
+  //   if (transcript && transcript !== lastTranscriptRef.current) {
+  //     const newPart = transcript.replace(lastTranscriptRef.current, "").trim();
+  //     if (newPart) {
+  //       setInput((prev) => `${prev} ${newPart}`.trim());
+  //     }
+  //     lastTranscriptRef.current = transcript;
+  //   }
+  // }, [transcript]);
+
+
+
   useEffect(() => {
     if (transcript && transcript !== lastTranscriptRef.current) {
       const newPart = transcript.replace(lastTranscriptRef.current, "").trim();
@@ -61,6 +74,14 @@ export function VoiceRecorder() {
         setInput((prev) => `${prev} ${newPart}`.trim());
       }
       lastTranscriptRef.current = transcript;
+
+      // Reset silence timer
+      if (silenceTimerRef.current) {
+        clearTimeout(silenceTimerRef.current);
+      }
+      silenceTimerRef.current = setTimeout(() => {
+        stopListening();
+      }, 5000); // 5 seconds of silence
     }
   }, [transcript]);
   function base64ToBlob(base64) {
@@ -80,6 +101,30 @@ export function VoiceRecorder() {
       typeof (value as Blob).arrayBuffer === "function"
     );
   }
+  useEffect(() => {
+    return () => {
+      if (silenceTimerRef.current) {
+        clearTimeout(silenceTimerRef.current);
+      }
+    };
+  }, []);
+
+  const startListening = () => {
+    SpeechRecognition.startListening({ continuous: true, language: "en-IN" });
+    setIsListening(true);
+  };
+
+  const stopListening = () => {
+    SpeechRecognition.stopListening();
+    setIsListening(false);
+
+    if (silenceTimerRef.current) {
+      clearTimeout(silenceTimerRef.current);
+      silenceTimerRef.current = null;
+    }
+  };
+
+
   const handleSend = async () => {
     const trimmedInput = input.trim();
     if (!trimmedInput && !imagePreview) return;
@@ -198,15 +243,15 @@ export function VoiceRecorder() {
     return () => clearTimeout(timer);
   }, [outMessage]);
 
-  const startListening = () => {
-    SpeechRecognition.startListening({ continuous: true, language: "en-IN" });
-    setIsListening(true);
-  };
+  // const startListening = () => {
+  //   SpeechRecognition.startListening({ continuous: true, language: "en-IN" });
+  //   setIsListening(true);
+  // };
 
-  const stopListening = () => {
-    SpeechRecognition.stopListening();
-    setIsListening(false);
-  };
+  // const stopListening = () => {
+  //   SpeechRecognition.stopListening();
+  //   setIsListening(false);
+  // };
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -259,12 +304,12 @@ export function VoiceRecorder() {
             <div className="flex-1 flex items-center justify-center px-6">
               <div className="text-center space-y-8 max-w-2xl">
                 <div className="space-y-4">
-                  <div className="w-20 h-20 bg-gradient-to-r from-green-500 to-emerald-500 rounded-3xl flex items-center justify-center mx-auto shadow-lg">
+                  {/* <div className="w-20 h-20 bg-gradient-to-r from-green-500 to-emerald-500 rounded-3xl flex items-center justify-center mx-auto shadow-lg">
                     <Sparkles className="w-10 h-10 text-white" />
-                  </div>
-                  <h2 className="text-4xl font-bold text-gray-800">
+                  </div> */}
+                  {/* <h2 className="text-4xl font-bold text-gray-800">
                     How can I help you today?
-                  </h2>
+                  </h2> */}
                   <p className="text-xl text-gray-600">
                     Ask me about budgeting, expenses, savings, or upload
                     receipts for analysis
@@ -297,7 +342,7 @@ export function VoiceRecorder() {
                     <div
                       key={index}
                       className="group cursor-pointer p-6 rounded-2xl bg-white/80 backdrop-blur-sm border border-green-200 hover:bg-white/95 hover:border-green-300 transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-xl"
-                      onClick={() => setInput(item.desc)}
+                      // onClick={() => setInput(item.desc)}
                     >
                       <div
                         className={`w-12 h-12 bg-gradient-to-r ${item.gradient} rounded-xl flex items-center justify-center mb-3`}
@@ -393,7 +438,12 @@ export function VoiceRecorder() {
           )}
 
           {/* Input Area */}
-          <div className="border-t border-green-200 backdrop-blur-lg bg-white/80 p-6 shadow-lg">
+          <div
+  className={`border-t border-green-200 backdrop-blur-lg bg-white/80 p-6 shadow-lg ${
+    messages.length === 0 ? "mt-8" : ""
+  }`}
+>
+
             {imagePreview && (
               <div className="relative inline-block mb-4">
                 <img
@@ -457,7 +507,7 @@ export function VoiceRecorder() {
                   />
                 </button>
 
-                <button
+                {/* <button
                   onClick={isListening ? stopListening : startListening}
                   className={`p-3 rounded-xl transition-all duration-200 shadow-md hover:shadow-lg ${
                     isListening
@@ -470,8 +520,27 @@ export function VoiceRecorder() {
                   ) : (
                     <Mic className="w-5 h-5" />
                   )}
-                </button>
+                </button> */}
 
+<button
+  onClick={isListening ? stopListening : startListening}
+  className={`relative p-3 rounded-xl shadow-md hover:shadow-lg transition-all duration-200 ${
+    isListening ? "bg-red-600" : "bg-green-500 hover:bg-green-600"
+  } text-white`}
+>
+  {/* Animated Pulse Ring when listening */}
+  {isListening && (
+    <span className="absolute inset-0 rounded-xl border-2 border-red-400 animate-ping opacity-75"></span>
+  )}
+
+  {isListening ? (
+    <Mic className="w-5 h-5 relative z-10" />
+  ) : (
+    <Mic className="w-5 h-5" />
+  )}
+</button>
+
+                
                 <button
                   onClick={handleSend}
                   disabled={!input.trim() && !imagePreview}
