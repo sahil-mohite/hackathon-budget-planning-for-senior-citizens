@@ -1,0 +1,93 @@
+{
+    "data" : [
+    {
+        "store_name": "Hamleys",
+        "bill_date": "2025-07-22",
+        "item_name": "t-shirt",
+        "quantity": 3.0,
+        "unit_price": 250.0,
+        "category": "Clothing"
+    },
+    {
+        "store_name": null,
+        "bill_date": "2025-07-22",
+        "item_name": "Travel",
+        "quantity": 1.0,
+        "unit_price": 300.0,
+        "category": "Travel"
+    },
+    {
+        "store_name": null,
+        "bill_date": "2025-07-22",
+        "item_name": "Travel",
+        "quantity": 1.0,
+        "unit_price": 300.0,
+        "category": "Travel"
+    },
+    {
+        "store_name": null,
+        "bill_date": "2025-07-22",
+        "item_name": "Sandwich",
+        "quantity": 2.0,
+        "unit_price": null,
+        "category": "Food"
+    },
+    {
+        "store_name": null,
+        "bill_date": "2025-07-16",
+        "item_name": "Sandwich",
+        "quantity": 2.0,
+        "unit_price": null,
+        "category": "Food"
+    },
+    {
+        "store_name": null,
+        "bill_date": "2025-07-22",
+        "item_name": "sandwich",
+        "quantity": 2.0,
+        "unit_price": null,
+        "category": "Food"
+    },
+    {
+        "store_name": null,
+        "bill_date": "2025-07-10",
+        "item_name": "Sandwich",
+        "quantity": 2.0,
+        "unit_price": 100.0,
+        "category": "Food"
+    },
+    {
+        "store_name": "Unknown",
+        "bill_date": "2024-10-27",
+        "item_name": "Cab Fare",
+        "quantity": 1.0,
+        "unit_price": 200.0,
+        "category": "Travel"
+    },
+    {
+        "store_name": "Rickshaw Service",
+        "bill_date": "2025-07-23",
+        "item_name": "Rickshaw Ride Home",
+        "quantity": 1.0,
+        "unit_price": 500.0,
+        "category": "Travel"
+    },
+    {
+        "store_name": "Unknown",
+        "bill_date": "2025-07-17",
+        "item_name": "Sandwich",
+        "quantity": 2.0,
+        "unit_price": 100.0,
+        "category": "Food"
+    },
+    {
+        "store_name": null,
+        "bill_date": "2025-07-22",
+        "item_name": "Sandwich",
+        "quantity": 2.0,
+        "unit_price": 200.0,
+        "category": "Food"
+    }
+]
+    
+}
