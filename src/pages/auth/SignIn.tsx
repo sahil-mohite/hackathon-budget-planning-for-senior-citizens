@@ -18,7 +18,7 @@ export default function Login() {
     setServerError("");
     console.log(data)
     try {
-      const res = await fetch("http://localhost:8000/auth/signin", {
+      const res = await fetch("http://localhost:8050/auth/signin", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
