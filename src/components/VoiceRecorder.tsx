@@ -132,8 +132,6 @@ export function VoiceRecorder() {
 
     if (imagePreview !== null) {
       // Append image-related fields
-
-      formData.append("user_id", "user-001-1");
       if (trimmedInput) {
         formData.append("user_explanation", trimmedInput);
       }
@@ -150,17 +148,18 @@ export function VoiceRecorder() {
       }
     } else {
       // Append text-only fields
-      formData.append("user_id", "user-001-1");
       formData.append("user_explanation", trimmedInput);
     }
     try {
       // 2. Append fields
       // for example, a file from input
 
-      const response = await fetch("http://localhost:8000/process/", {
+      const response = await fetch("http://localhost:8000/process", {
         method: "POST",
-
-        body: formData,
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`
+        },
+        body: formData
       });
       console.log(response);
 
