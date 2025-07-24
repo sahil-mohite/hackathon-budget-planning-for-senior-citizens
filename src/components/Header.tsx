@@ -12,13 +12,33 @@ import {
 import { LanguageSelector } from "./LanguageSelector";
 import { NotificationCenter } from "./NotificationCenter";
 import { SettingsPanel } from "./SettingsPanel";
+import { ProfilePanel } from "./ProfilePanel";
+
+type FinancialDetails = {
+  income: string;
+  getsPension: boolean;
+  pensionAmount: string;
+  investsInStocks: boolean;
+  yearlyStockInvestment: string;
+  additionalDetails: string;
+};
+
+interface UserData {
+  firstName: string;
+  lastName: string;
+  email: string; // ✅ required for Header
+  address: string;
+  phone: string;
+  financialDetails: FinancialDetails;
+}
 
 interface HeaderProps {
   onMenuToggle?: () => void;
   showMenuButton?: boolean;
+  userData: UserData;
 }
 
-export function Header({ onMenuToggle, showMenuButton = false }: HeaderProps) {
+export function Header({ onMenuToggle, showMenuButton = false, userData }: HeaderProps) {
   const { t } = useTranslation();
   const [showNotifications, setShowNotifications] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
@@ -139,9 +159,10 @@ export function Header({ onMenuToggle, showMenuButton = false }: HeaderProps) {
 
         {showSettings && (
           <div className="fixed inset-0 z-50 lg:absolute lg:top-0 lg:right-0">
-            <SettingsPanel
+            <ProfilePanel
               isOpen={showSettings}
               onClose={() => setShowSettings(false)}
+              userData={userData}
             />
           </div>
         )}

@@ -26,6 +26,7 @@ interface FinancialDetails {
 interface UserData {
   firstName: string;
   lastName: string;
+  email: string,
   address: string;
   phone: string;
   financialDetails: FinancialDetails;
@@ -145,7 +146,7 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <Header onMenuToggle={() => setMobileMenuOpen(!mobileMenuOpen)} showMenuButton={true} />
+      <Header onMenuToggle={() => setMobileMenuOpen(!mobileMenuOpen)} showMenuButton={true} userData={userData}/>
 
       {mobileMenuOpen && (
         <div className="fixed inset-0 z-50 lg:hidden">
