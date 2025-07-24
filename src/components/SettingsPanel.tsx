@@ -1,16 +1,11 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import {
-  Settings,
-  RotateCcw,
-  Save,
-} from "lucide-react";
+import { Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Slider } from "@/components/ui/slider";
 
 interface SettingsPanelProps {
   isOpen: boolean;
@@ -19,30 +14,22 @@ interface SettingsPanelProps {
 
 export function SettingsPanel({ isOpen, onClose }: SettingsPanelProps) {
   const panelRef = useRef<HTMLDivElement>(null);
+  const navigate = useNavigate();
 
   const [settings, setSettings] = useState({
-    name: "John Doe",
-    email: "john.doe@email.com",
-    currency: "USD",
-    monthlyIncome: "3500",
-    fontSize: [18],
-    highContrast: false,
-    voiceSpeed: [1.0],
-    budgetAlerts: true,
-    monthlyReminders: true,
-    savingsTips: true,
-    soundEnabled: true,
-    dataSharing: false,
-    backupEnabled: true,
-    biometricAuth: false,
-    language: "en",
-    darkMode: false,
-    autoSave: true,
-    mobileNumber: "xxxxxxxxxx"
+    firstName: "Shri",
+    lastName: "Alex",
+    address:
+      "Parijat, Dnyanesh Park, Road No. 2, Plot No. 6, Near Krishna Chowk, New Sanghvi, Pimple Gurav, Pune, Maharashtra - 411061",
+    phone: "7387133118",
+    income: "1000000",
+    getsPension: true,
+    pensionAmount: "",
+    investsInStocks: true,
+    yearlyStockInvestment: "",
   });
 
   const [hasChanges, setHasChanges] = useState(false);
-  const navigate = useNavigate();
 
   const updateSetting = (key: string, value: any) => {
     setSettings((prev) => ({ ...prev, [key]: value }));
@@ -54,42 +41,18 @@ export function SettingsPanel({ isOpen, onClose }: SettingsPanelProps) {
     setHasChanges(false);
   };
 
-  // const resetSettings = () => {
-  //   setSettings({
-  //     name: "John Doe",
-  //     email: "john.doe@email.com",
-  //     currency: "USD",
-  //     monthlyIncome: "3500",
-  //     fontSize: [18],
-  //     highContrast: false,
-  //     voiceSpeed: [1.0],
-  //     budgetAlerts: true,
-  //     monthlyReminders: true,
-  //     savingsTips: true,
-  //     soundEnabled: true,
-  //     dataSharing: false,
-  //     backupEnabled: true,
-  //     biometricAuth: false,
-  //     language: "en",
-  //     darkMode: false,
-  //     autoSave: true,
-  //   });
-  //   setHasChanges(false);
-  // };
-
   const handleLogout = () => {
     console.log("Logging out...");
     navigate("/login");
   };
 
-  // Handle click outside
+  // Close panel on click outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (panelRef.current && !panelRef.current.contains(event.target as Node)) {
         onClose();
       }
     };
-
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [onClose]);
@@ -100,7 +63,7 @@ export function SettingsPanel({ isOpen, onClose }: SettingsPanelProps) {
     <div className="fixed inset-0 z-40 bg-black/40 flex justify-end">
       <Card
         ref={panelRef}
-        className="w-full max-w-md h-full z-50 bg-white dark:bg-zinc-900 shadow-lg border border-border flex flex-col"
+        className="w-full max-w-2xl h-full z-50 bg-white dark:bg-zinc-900 shadow-lg border border-border flex flex-col"
       >
         {/* Header */}
         <div className="p-6 border-b border-border flex justify-between items-center">
@@ -108,7 +71,6 @@ export function SettingsPanel({ isOpen, onClose }: SettingsPanelProps) {
             <Settings className="w-5 h-5" />
             Settings
           </h2>
-
           <div className="flex items-center gap-2">
             <Button variant="outline" size="sm" onClick={handleLogout}>
               Logout
@@ -119,82 +81,90 @@ export function SettingsPanel({ isOpen, onClose }: SettingsPanelProps) {
           </div>
         </div>
 
-        {/* Scrollable Content */}
+        {/* Content */}
         <div className="flex-1 overflow-y-auto px-6 py-4 space-y-6">
-          <div className="space-y-2">
-            <Label>Name</Label>
-            <Input
-              value={settings.name}
-              onChange={(e) => updateSetting("name", e.target.value)}
-            />
+          {/* Basic Info */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label>First Name</Label>
+              <Input
+                value={settings.firstName}
+                onChange={(e) => updateSetting("firstName", e.target.value)}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Last Name</Label>
+              <Input
+                value={settings.lastName}
+                onChange={(e) => updateSetting("lastName", e.target.value)}
+              />
+            </div>
+            <div className="space-y-2 sm:col-span-2">
+              <Label>Address</Label>
+              <Input
+                value={settings.address}
+                onChange={(e) => updateSetting("address", e.target.value)}
+              />
+            </div>
+            <div className="space-y-2 sm:col-span-2">
+              <Label>Phone</Label>
+              <Input
+                value={settings.phone}
+                onChange={(e) => updateSetting("phone", e.target.value)}
+              />
+            </div>
           </div>
 
-          <div className="space-y-2">
-            <Label>Email</Label>
-            <Input
-              value={settings.email}
-              onChange={(e) => updateSetting("email", e.target.value)}
-            />
-          </div>
+          {/* Financial Info */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4 border-t border-border">
+            <div className="space-y-2">
+              <Label>Income</Label>
+              <Input
+                value={settings.income}
+                onChange={(e) => updateSetting("income", e.target.value)}
+              />
+            </div>
+            <div className="flex items-center justify-between mt-6">
+              <Label>Gets Pension</Label>
+              <Switch
+                checked={settings.getsPension}
+                onCheckedChange={(val) => updateSetting("getsPension", val)}
+              />
+            </div>
+            {settings.getsPension && (
+              <div className="space-y-2 sm:col-span-2">
+                <Label>Pension Amount</Label>
+                <Input
+                  value={settings.pensionAmount}
+                  onChange={(e) => updateSetting("pensionAmount", e.target.value)}
+                />
+              </div>
+            )}
 
-          <div className="space-y-2">
-            <Label>Monthly Income</Label>
-            <Input
-              value={settings.monthlyIncome}
-              onChange={(e) => updateSetting("monthlyIncome", e.target.value)}
-            />
+            <div className="flex items-center justify-between mt-6">
+              <Label>Invests in Stocks</Label>
+              <Switch
+                checked={settings.investsInStocks}
+                onCheckedChange={(val) => updateSetting("investsInStocks", val)}
+              />
+            </div>
+            {settings.investsInStocks && (
+              <div className="space-y-2 sm:col-span-2">
+                <Label>Yearly Stock Investment</Label>
+                <Input
+                  value={settings.yearlyStockInvestment}
+                  onChange={(e) =>
+                    updateSetting("yearlyStockInvestment", e.target.value)
+                  }
+                />
+              </div>
+            )}
           </div>
-
-          <div className="space-y-2">
-            <Label>Mobile Number</Label>
-            <Input
-              value={settings.mobileNumber}
-              onChange={(e) => updateSetting("mobileNumber", e.target.value)}
-            />
-          </div>
-          {/* <div className="space-y-2">
-            <Label>Font Size</Label>
-            <Slider
-              min={12}
-              max={24}
-              step={1}
-              value={settings.fontSize}
-              onValueChange={(val) => updateSetting("fontSize", val)}
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label>Voice Speed</Label>
-            <Slider
-              min={0.5}
-              max={2}
-              step={0.1}
-              value={settings.voiceSpeed}
-              onValueChange={(val) => updateSetting("voiceSpeed", val)}
-            />
-          </div>
-
-          <div className="flex items-center justify-between">
-            <Label>Enable Dark Mode</Label>
-            <Switch
-              checked={settings.darkMode}
-              onCheckedChange={(val) => updateSetting("darkMode", val)}
-            />
-          </div> */}
         </div>
 
         {/* Footer */}
-        <div className="p-6 border-t border-border flex justify-between items-center">
-          {/* <Button
-            variant="outline"
-            onClick={resetSettings}
-            disabled={!hasChanges}
-          >
-           
-            Update
-          </Button> */}
+        <div className="p-6 border-t border-border flex justify-end items-center gap-2">
           <Button onClick={saveSettings} disabled={!hasChanges}>
-           
             Update
           </Button>
         </div>

@@ -303,12 +303,12 @@ export function VoiceRecorder() {
             <div className="flex-1 flex items-center justify-center px-6">
               <div className="text-center space-y-8 max-w-2xl">
                 <div className="space-y-4">
-                  <div className="w-20 h-20 bg-gradient-to-r from-green-500 to-emerald-500 rounded-3xl flex items-center justify-center mx-auto shadow-lg">
+                  {/* <div className="w-20 h-20 bg-gradient-to-r from-green-500 to-emerald-500 rounded-3xl flex items-center justify-center mx-auto shadow-lg">
                     <Sparkles className="w-10 h-10 text-white" />
-                  </div>
-                  <h2 className="text-4xl font-bold text-gray-800">
+                  </div> */}
+                  {/* <h2 className="text-4xl font-bold text-gray-800">
                     How can I help you today?
-                  </h2>
+                  </h2> */}
                   <p className="text-xl text-gray-600">
                     Ask me about budgeting, expenses, savings, or upload
                     receipts for analysis
@@ -437,7 +437,12 @@ export function VoiceRecorder() {
           )}
 
           {/* Input Area */}
-          <div className="border-t border-green-200 backdrop-blur-lg bg-white/80 p-6 shadow-lg">
+          <div
+  className={`border-t border-green-200 backdrop-blur-lg bg-white/80 p-6 shadow-lg ${
+    messages.length === 0 ? "mt-8" : ""
+  }`}
+>
+
             {imagePreview && (
               <div className="relative inline-block mb-4">
                 <img
