@@ -104,6 +104,20 @@ async def get_profile(current_user: dict = Depends(get_current_user)):
         "email": current_user["email"]
     }
 
+@app.get("/getUserData")
+async def get_user_data(current_user: dict = Depends(get_current_user)):
+    # Access user's email or ID from JWT
+    user_email = current_user.get("email")
+    
+    # Get user data from DB
+    user_data = await users_collection.find_one({"email": user_email}, {"_id": 0})  # exclude _id if not needed
+
+    if not user_data:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    return user_data
+
+
 
 @app.post("/process/", response_model=List[ProcessedItemInDB], status_code=201)
 async def process_data_and_store(

@@ -66,6 +66,7 @@ class ExpenseItem(BaseModel):
     quantity: Optional[float] = None
     unit_price: Optional[float] = None
     category: Optional[str] = None
+    id: Optional[str] = None
 
 class InsightResponse(BaseModel):
     user_id: str

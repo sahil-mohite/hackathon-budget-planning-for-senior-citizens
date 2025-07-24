@@ -9,6 +9,9 @@ from dotenv import load_dotenv
 from models import FinancialGoal, GoalInDB, ExpenseItem, InsightResponse
 from auth import get_current_user
 from database import item_collection, goal_collection
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi import APIRouter, HTTPException, Path, Body
+from bson import ObjectId
 
 # Load environment variables from .env file
 load_dotenv()
@@ -17,8 +20,20 @@ load_dotenv()
 GOOGLE_API_KEY = os.environ.get("GOOGLE_API_KEY")
 
 # --- Initialize FastAPI Router ---
-# Using APIRouter allows us to keep these endpoints separate from main.py
+app = FastAPI()
+
+# ✅ Add CORS middleware here
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # or ["*"] for all origins
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# ✅ Then include your router
 router = APIRouter()
+app.include_router(router)
 
 
 # --- Configure Gemini API ---
@@ -71,10 +86,57 @@ async def get_user_expenses(user_id: str = Path(..., description="The ID of the 
     expenses = await expenses_cursor.to_list(length=1000) # Capping at 1000 expenses for safety
     if not expenses:
         raise HTTPException(status_code=404, detail="No expenses found for this user.")
+   
+    for expense in expenses:
+        expense['id']=str(expense['_id'])
     return expenses
 
+# --- Endpoint 3: Update expenses ---
+@router.put("/expenses/{expense_id}")
+async def update_expense(
+    expense_id: str = Path(..., description="The ID of the expense to update"),
+    update_data: dict = Body(...)
+):
+    """
+    Updates an existing expense in MongoDB based on _id.
+    """
+    if not ObjectId.is_valid(expense_id):
+        raise HTTPException(status_code=400, detail="Invalid expense ID.")
 
-# --- Endpoint 3: Get Financial Insights ---
+    # 🧼 Sanitize: Remove 'id' or '_id' from incoming update to prevent overwrite issues
+    update_data.pop('id', None)
+    update_data.pop('_id', None)
+
+    result = await item_collection.update_one(
+        {"_id": ObjectId(expense_id)},
+        {"$set": update_data}
+    )
+
+    if result.matched_count == 0:
+        raise HTTPException(status_code=404, detail="Expense not found.")
+
+    updated_expense = await item_collection.find_one({"_id": ObjectId(expense_id)})
+    updated_expense['id'] = str(updated_expense['_id'])
+    del updated_expense['_id']
+
+    return updated_expense
+
+# --- Endpoint 4: Delete User Expenses ---
+@router.delete("/expenses/{expense_id}")
+async def delete_expense(
+    expense_id: str = Path(..., description="The ID of the expense to delete")
+):
+    if not ObjectId.is_valid(expense_id):
+        raise HTTPException(status_code=400, detail="Invalid expense ID format (must be 24 hex characters).")
+
+    result = await item_collection.delete_one({"_id": ObjectId(expense_id)})
+
+    if result.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Expense not found with this ID.")
+
+    return {"message": "Expense deleted successfully", "id": expense_id}
+
+# --- Endpoint 5: Get Financial Insights ---
 @router.get("/insights/{user_id}", response_model=InsightResponse)
 async def get_financial_insights(user_id: str = Path(..., description="The ID of the user to generate insights for."), current_user: dict = Depends(get_current_user)):
     """
