@@ -65,8 +65,6 @@ export function VoiceRecorder() {
   //   }
   // }, [transcript]);
 
-
-
   useEffect(() => {
     if (transcript && transcript !== lastTranscriptRef.current) {
       const newPart = transcript.replace(lastTranscriptRef.current, "").trim();
@@ -123,7 +121,6 @@ export function VoiceRecorder() {
       silenceTimerRef.current = null;
     }
   };
-
 
   const handleSend = async () => {
     const trimmedInput = input.trim();
@@ -182,9 +179,7 @@ export function VoiceRecorder() {
       setOutMessage(message);
     } catch (error) {
       console.error("Failed to send message:", error);
-      setOutMessage(
-        "An unexpected error occurred while processing your request."
-      );
+      setOutMessage("Oops! Something went wrong. Please try again later.");
     }
 
     // Update local chat
@@ -447,11 +442,10 @@ export function VoiceRecorder() {
 
           {/* Input Area */}
           <div
-  className={`border-t border-green-200 backdrop-blur-lg bg-white/80 p-6 shadow-lg ${
-    messages.length === 0 ? "mt-8" : ""
-  }`}
->
-
+            className={`border-t border-green-200 backdrop-blur-lg bg-white/80 p-6 shadow-lg ${
+              messages.length === 0 ? "mt-8" : ""
+            }`}
+          >
             {imagePreview && (
               <div className="relative inline-block mb-4">
                 <img
@@ -530,25 +524,26 @@ export function VoiceRecorder() {
                   )}
                 </button> */}
 
-<button
-  onClick={isListening ? stopListening : startListening}
-  className={`relative p-3 rounded-xl shadow-md hover:shadow-lg transition-all duration-200 ${
-    isListening ? "bg-red-600" : "bg-green-500 hover:bg-green-600"
-  } text-white`}
->
-  {/* Animated Pulse Ring when listening */}
-  {isListening && (
-    <span className="absolute inset-0 rounded-xl border-2 border-red-400 animate-ping opacity-75"></span>
-  )}
+                <button
+                  onClick={isListening ? stopListening : startListening}
+                  className={`relative p-3 rounded-xl shadow-md hover:shadow-lg transition-all duration-200 ${
+                    isListening
+                      ? "bg-red-600"
+                      : "bg-green-500 hover:bg-green-600"
+                  } text-white`}
+                >
+                  {/* Animated Pulse Ring when listening */}
+                  {isListening && (
+                    <span className="absolute inset-0 rounded-xl border-2 border-red-400 animate-ping opacity-75"></span>
+                  )}
 
-  {isListening ? (
-    <Mic className="w-5 h-5 relative z-10" />
-  ) : (
-    <Mic className="w-5 h-5" />
-  )}
-</button>
+                  {isListening ? (
+                    <Mic className="w-5 h-5 relative z-10" />
+                  ) : (
+                    <Mic className="w-5 h-5" />
+                  )}
+                </button>
 
-                
                 <button
                   onClick={handleSend}
                   disabled={!input.trim() && !imagePreview}
