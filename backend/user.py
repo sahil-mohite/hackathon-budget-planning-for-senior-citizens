@@ -3,7 +3,7 @@ load_dotenv()
 from fastapi import FastAPI, HTTPException, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from auth_utils import hash_password, verify_password, create_jwt_token, get_current_user
-from models import SignUpRequest, SignInRequest, TokenResponse
+from models import SignUpRequest, SignInRequest, TokenResponse, UserUpdate
 from fastapi.security import OAuth2PasswordBearer
 from database import users_collection
 
@@ -49,7 +49,7 @@ async def signup(payload: SignUpRequest):
         "getsPension": payload.financialDetails.getsPension,
         "pensionAmount": payload.financialDetails.pensionAmount,
         "investsInStocks": payload.financialDetails.investsInStocks,
-        "yearlyStockInvestment": payload.financialDetails.yearlyStockInvestment,
+        "yearlyStockInvestment": payload.financialDetails.yearlyStockInvestment
     }
     
     user = {
@@ -78,3 +78,56 @@ async def get_profile(current_user: dict = Depends(get_current_user)):
     return {
         "email": current_user["email"]
     }
+
+
+@app.get("/getUserData")
+async def get_user_data(current_user: dict = Depends(get_current_user)):
+    # Access user's email or ID from JWT
+    user_email = current_user.get("email")
+    
+    # Get user data from DB
+    user_data = await users_collection.find_one({"email": user_email}, {"_id": 0})  # exclude _id if not needed
+
+    if not user_data:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    return user_data
+
+
+@app.put("/updateUserData")
+async def update_user_data(
+    user_update: UserUpdate,
+    current_user: dict = Depends(get_current_user)
+):
+    user_email = current_user.get("email")
+
+    existing_user = await users_collection.find_one({"email": user_email})
+    if not existing_user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    update_data = user_update.dict(exclude_unset=True)
+
+    # If updating password, hash it before saving (optional, depends on your auth flow)
+    if "password" in update_data:
+        # example: update_data["password"] = hash_password(update_data["password"])
+        pass
+
+    # Update nested financialDetails if present
+    if "financialDetails" in update_data:
+        financial_update = update_data.pop("financialDetails")
+        # Use MongoDB $set with dot notation to update nested fields
+        for key, value in financial_update.items():
+            update_data[f"financialDetails.{key}"] = value
+
+    if not update_data:
+        raise HTTPException(status_code=400, detail="No fields provided for update")
+
+    result = await users_collection.update_one(
+        {"email": user_email},
+        {"$set": update_data}
+    )
+
+    if result.modified_count == 0:
+        return {"message": "No changes were made to the user data."}
+
+    return {"message": "User data updated successfully", "updated_fields": update_data}
