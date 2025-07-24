@@ -52,13 +52,14 @@ def fix_object_id(doc):
 
 # --- API Endpoint ---
 
-@app.post("/process/", response_model=List[ProcessedItemInDB], status_code=201)
+@app.post("/process", response_model=List[ProcessedItemInDB], status_code=201)
 async def process_data_and_store(
-    user_id: str = Form(...),
+    current_user: dict = Depends(get_current_user),
     image: Optional[UploadFile] = File(None),
     image_base64: Optional[str] = Form(None),  # add this line!
     user_explanation: Optional[str] = Form(None)
 ):
+    user_id = current_user["email"]
     if not image and not user_explanation:
         raise HTTPException(
             status_code=400,

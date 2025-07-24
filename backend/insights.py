@@ -72,16 +72,17 @@ async def set_financial_goal(goal: FinancialGoal, current_user: dict = Depends(g
 
 
 # --- Endpoint 2: Get User Expenses ---
-@app.get("/expenses/{user_id}", response_model=List[ExpenseItem])
-async def get_user_expenses(user_id: str = Path(..., description="The ID of the user to fetch expenses for.")):
+@app.get("/expenses", response_model=List[ExpenseItem])
+async def get_user_expenses(current_user: dict = Depends(get_current_user)):
     """
     Fetches all the bill items (expenses) from the database for a specific user.
     """
+    user_id = current_user["email"]
     expenses_cursor = item_collection.find({"user_id": user_id})
     expenses = await expenses_cursor.to_list(length=1000)
 
     if not expenses:
-        raise HTTPException(status_code=404, detail="No expenses found for this user.")
+        return []
 
     for expense in expenses:
         expense["id"] = str(expense["_id"])
@@ -93,7 +94,8 @@ async def get_user_expenses(user_id: str = Path(..., description="The ID of the 
 @app.put("/expenses/{expense_id}")
 async def update_expense(
     expense_id: str = Path(..., description="The ID of the expense to update"),
-    update_data: dict = Body(...)
+    update_data: dict = Body(...),
+    current_user: dict = Depends(get_current_user)
 ):
     """
     Updates an existing expense in MongoDB based on _id (ObjectId or string fallback).
@@ -121,7 +123,8 @@ async def update_expense(
 # --- Endpoint 4: Delete User Expenses ---
 @app.delete("/expenses/{expense_id}")
 async def delete_expense(
-    expense_id: str = Path(..., description="The ID of the expense to delete")
+    expense_id: str = Path(..., description="The ID of the expense to delete"),
+    current_user: dict = Depends(get_current_user)
 ):
     if not ObjectId.is_valid(expense_id):
         raise HTTPException(status_code=400, detail="Invalid expense ID format (must be 24 hex characters).")

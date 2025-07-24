@@ -4,6 +4,7 @@ import ExpensePieChart from './ExpensePieChart';
 import BarChart from './BarChart';
 import KpiCards from './KpiCards';
 import { Card } from '@/components/ui/card';
+import { useNavigate } from 'react-router-dom';
 
 interface RawExpense {
   store_name: string | null;
@@ -25,6 +26,7 @@ interface CategoryExpense {
 }
 
 const DashboardContainer = () => {
+  const navigate = useNavigate();
   const [dailyExpenses, setDailyExpenses] = useState<DailyExpense[]>([]);
   const [categoryBreakdown, setCategoryBreakdown] = useState<CategoryExpense[]>([]);
   const [loading, setLoading] = useState(true);
@@ -32,16 +34,21 @@ const DashboardContainer = () => {
   useEffect(() => {
     const token = localStorage.getItem("token");
     fetch('http://localhost:8090/expenses', {
-    // fetch('/newData.json',{
-      method: 'GET',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      }
-    })
-      .then((res) => res.json())
-      .then((rawData: RawExpense[]) => {
-        console.log(rawData);
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      })
+      .then((res) => {
+        if(res.status==401){
+          localStorage.removeItem('token')
+          navigate('/login')
+        }
+        return res.json()
+      })
+      .then((rawData: RawExpense[])=>{
+        console.log(rawData)
 
         const dailyMap = new Map<string, number>();
         const categoryMap = new Map<string, number>();
