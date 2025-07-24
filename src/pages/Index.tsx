@@ -8,6 +8,8 @@ import { SimpleCalculator } from "@/components/SimpleCalculator";
 import { Card } from "@/components/ui/card";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
+import { HelpSection } from "@/components/HelpSection";
+import { HistorySection } from "@/components/HistorySection";
 import { Clock, HelpCircle, X } from "lucide-react";
 import { History } from "@/components/History";
 
@@ -102,7 +104,7 @@ const Index = () => {
                 Speak naturally about your income and expenses
               </p>
             </div>
-            <VoiceRecorder onTranscript={setTranscript} />
+            <VoiceRecorder />
             {transcript && (
               <Card className="p-4 bg-accent">
                 <h3 className="text-senior-base font-medium text-accent-foreground mb-2">
@@ -122,55 +124,12 @@ const Index = () => {
 
       case "history":
         return (
-          <div className="space-y-6">
-            <div className="text-center space-y-2">
-              <h2 className="text-senior-xl font-bold text-foreground flex items-center justify-center gap-3">
-                <Clock className="h-8 w-8 text-primary" />
-                Budget History
-              </h2>
-              <p className="text-senior-base text-muted-foreground">
-                Review your past budget entries and spending patterns
-              </p>
-            </div>
-            <History />
-          </div>
+          <HistorySection/>
         );
 
       case "help":
         return (
-          <div className="space-y-6">
-            <div className="text-center space-y-2">
-              <h2 className="text-senior-xl font-bold text-foreground flex items-center justify-center gap-3">
-                <HelpCircle className="h-8 w-8 text-primary" />
-                Help & Support
-              </h2>
-              <p className="text-senior-base text-muted-foreground">
-                Get help using BudgetWise Senior
-              </p>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <Card className="p-6">
-                <h3 className="text-senior-lg font-semibold text-foreground mb-4">How to Use Voice Input</h3>
-                <ul className="space-y-2 text-senior-base text-muted-foreground">
-                  <li>• Click the microphone button</li>
-                  <li>• Speak clearly about your expenses</li>
-                  <li>• Example: "I spent $50 on groceries"</li>
-                  <li>• The AI will organize your data</li>
-                </ul>
-              </Card>
-
-              <Card className="p-6">
-                <h3 className="text-senior-lg font-semibold text-foreground mb-4">Understanding Your Dashboard</h3>
-                <ul className="space-y-2 text-senior-base text-muted-foreground">
-                  <li>• View spending by category</li>
-                  <li>• See trends with colored arrows</li>
-                  <li>• Track monthly savings</li>
-                  <li>• Monitor remaining budget</li>
-                </ul>
-              </Card>
-            </div>
-          </div>
+          <HelpSection />
         );
 
       default:
