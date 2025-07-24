@@ -84,6 +84,9 @@ async def get_user_expenses(user_id: str = Path(..., description="The ID of the 
     expenses = await expenses_cursor.to_list(length=1000) # Capping at 1000 expenses for safety
     if not expenses:
         raise HTTPException(status_code=404, detail="No expenses found for this user.")
+   
+    for expense in expenses:
+        expense['id']=str(expense['_id'])
     return expenses
 
 
