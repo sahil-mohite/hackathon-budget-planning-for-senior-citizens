@@ -1,4 +1,5 @@
 # main.py
+import base64
 from dotenv import load_dotenv
 load_dotenv()
 import os

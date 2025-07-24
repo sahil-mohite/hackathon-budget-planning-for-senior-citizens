@@ -28,7 +28,7 @@ const Index = () => {
       }
 
       try {
-        const res = await fetch("http://localhost:8000/home", {
+        const res = await fetch("http://localhost:8000/getUserData", {
           headers: {
             Authorization: `Bearer ${token}`,
           },
