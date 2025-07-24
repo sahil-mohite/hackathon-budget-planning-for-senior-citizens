@@ -14,9 +14,13 @@ const SignUpFirstPage = () => {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
-
-    // Clear errors on input change
+    setFormData({
+      ...formData,
+      [name]: value,
+      financialDetails: {
+        ...formData.financialDetails, // preserve existing nested data
+      },
+    });
     setErrors((prev) => ({ ...prev, [name]: undefined }));
   };
 
@@ -35,18 +39,27 @@ const SignUpFirstPage = () => {
     return newErrors;
   };
 
-  const handleNext = () => {
-    const { firstName, lastName, email, password } = formData;
-
+  const handleNext = async () => {
     const validationErrors = validate();
-
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
       return;
     }
 
-    if (firstName && lastName && email && password) {
-      navigate("/signup-step-two");
+    if (formData.firstName && formData.lastName && formData.email && formData.password) {
+
+      const res = await fetch(`http://localhost:8000/auth/validate-email?email=${formData.email}`, {
+        method: "GET"
+      })
+
+      const result = await res.json();
+
+      if(res.ok){
+        navigate("/signup-step-two");
+      }
+      else if(res.status==400){
+        alert("Email Already exist. Please use a different email id")
+      }
     } else {
       alert("Please fill all fields");
     }
@@ -63,9 +76,7 @@ const SignUpFirstPage = () => {
               <DollarSign className="h-10 w-10 sm:h-14 sm:w-14 text-primary-foreground" />
             </div>
           </div>
-          <h2 className="text-senior-xl font-bold text-foreground text-center">
-            BudgetWise Senior
-          </h2>
+          <h2 className="text-senior-xl font-bold text-foreground text-center">BudgetWise Senior</h2>
           <p className="text-muted-foreground text-center text-sm max-w-sm">
             Sign up to start managing your pension and expenses smartly.
           </p>

@@ -5,12 +5,13 @@ import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
-import { 
-  Settings, 
-  User, 
-  Bell, 
-  Shield, 
-  Palette, 
+import { useNavigate, Link } from "react-router-dom";
+import {
+  Settings,
+  User,
+  Bell,
+  Shield,
+  Palette,
   Volume2,
   DollarSign,
   Save,
@@ -52,7 +53,11 @@ export function SettingsPanel({ isOpen, onClose }: SettingsPanelProps) {
     darkMode: false,
     autoSave: true,
   });
-
+  const navigate = useNavigate();
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    navigate("/login");
+  };
   const [hasChanges, setHasChanges] = useState(false);
 
   const updateSetting = (key: string, value: unknown) => {
@@ -96,7 +101,7 @@ export function SettingsPanel({ isOpen, onClose }: SettingsPanelProps) {
   return (
     <div className="fixed inset-0 z-50 lg:relative lg:inset-auto">
       {/* Mobile overlay */}
-      <div 
+      <div
         className="fixed inset-0 bg-black/50 lg:hidden" 
         onClick={onClose}
       />
@@ -117,6 +122,9 @@ export function SettingsPanel({ isOpen, onClose }: SettingsPanelProps) {
                   Save
                 </Button>
               )}
+              <Button variant="outline" onClick={handleLogout} size="sm">
+                Logout
+              </Button>
               <Button variant="outline" onClick={onClose} size="sm">
                 Close
               </Button>

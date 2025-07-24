@@ -2,7 +2,7 @@
 import os
 import datetime
 import json
-from fastapi import FastAPI, APIRouter, HTTPException, Body, Path
+from fastapi import Depends, FastAPI, APIRouter, HTTPException, Body, Path
 from pydantic import BaseModel, Field
 from typing import List, Optional, Dict, Any
 from bson import ObjectId
@@ -10,6 +10,7 @@ import motor.motor_asyncio
 import google.generativeai as genai
 from dotenv import load_dotenv
 from models import FinancialGoal, GoalInDB, ExpenseItem, InsightResponse
+from auth import get_current_user
 
 # Load environment variables from .env file
 load_dotenv()
@@ -46,7 +47,7 @@ def fix_object_id(doc):
 
 # --- Endpoint 1: Set Financial Goal ---
 @router.post("/goals", response_model=GoalInDB, status_code=201)
-async def set_financial_goal(goal: FinancialGoal):
+async def set_financial_goal(goal: FinancialGoal, current_user: dict = Depends(get_current_user)):
     """
     Accepts a user_id and their financial goal for the month and stores it.
     This will overwrite any existing goal for the same user and month.
@@ -68,7 +69,7 @@ async def set_financial_goal(goal: FinancialGoal):
 
 # --- Endpoint 2: Get User Expenses ---
 @router.get("/expenses/{user_id}", response_model=List[ExpenseItem])
-async def get_user_expenses(user_id: str = Path(..., description="The ID of the user to fetch expenses for.")):
+async def get_user_expenses(user_id: str = Path(..., description="The ID of the user to fetch expenses for."), current_user: dict = Depends(get_current_user)):
     """
     Fetches all the bill items (expenses) from the database for a specific user.
     """
@@ -81,7 +82,7 @@ async def get_user_expenses(user_id: str = Path(..., description="The ID of the 
 
 # --- Endpoint 3: Get Financial Insights ---
 @router.get("/insights/{user_id}", response_model=InsightResponse)
-async def get_financial_insights(user_id: str = Path(..., description="The ID of the user to generate insights for.")):
+async def get_financial_insights(user_id: str = Path(..., description="The ID of the user to generate insights for."), current_user: dict = Depends(get_current_user)):
     """
     Fetches the user's goal and expenses, then uses Gemini to generate insights.
     """

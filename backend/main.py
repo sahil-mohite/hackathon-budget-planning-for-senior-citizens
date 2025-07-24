@@ -7,32 +7,19 @@ import datetime
 import json
 from fastapi import FastAPI, File, UploadFile, Form, HTTPException, Depends
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel, Field, field_validator
-from typing import Dict, Any, Optional, List
-from auth import hash_password, verify_password, create_jwt_token, decode_jwt_token
-from models import SignUpRequest, SignInRequest, TokenResponse, ProcessedItemInDB, Config
+from typing import Optional, List
+from auth import hash_password, verify_password, create_jwt_token, get_current_user
+from models import SignUpRequest, SignInRequest, TokenResponse, ProcessedItemInDB
 from fastapi.security import OAuth2PasswordBearer
+from localDB import users_collection, item_collection
 
-from bson import ObjectId
-import motor.motor_asyncio
 import google.generativeai as genai
 from PIL import Image
 
 # --- Configuration ---
-MONGO_DETAILS = os.environ.get("MONGO_DETAILS", "mongodb://localhost:27017")
-client = motor.motor_asyncio.AsyncIOMotorClient(MONGO_DETAILS)
-database = client.gemini_insights
-item_collection = database.get_collection("bill_items")
-# MONGO_USERNAME = "newuser"
-# MONGO_PASSWORD = "newuser"
-# CLUSTER_NAME = ":billing-data.rgnagne.mongodb.net"
-# DB_NAME = "auth"
 GOOGLE_API_KEY = os.environ.get("GOOGLE_API_KEY", "GOOGLE_API_KEY")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="signin")
 
-# MONGO_URL = (
-#     f"mongodb+srv://{MONGO_USERNAME}:{MONGO_PASSWORD}"
-#     f"@{CLUSTER_NAME}.mongodb.net/{DB_NAME}?retryWrites=true&w=majority&appName=Billing-Data"
-# )
 
 # --- Initialize FastAPI App ---
 app = FastAPI(
@@ -50,13 +37,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# --- Database Connection ---
-client = motor.motor_asyncio.AsyncIOMotorClient(MONGO_DETAILS)
-database = client.gemini_insights
-item_collection = database.get_collection("bill_items")
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
-db = client["auth"]
-users_collection = db["users"]
 
 # --- Configure Gemini API ---
 try:
@@ -73,22 +53,43 @@ def fix_object_id(doc):
 
 # --- API Endpoint ---
 
-@app.post("/signup")
+@app.get("/auth/validate-email")
+async def validate_email(email: str):
+    user = await users_collection.find_one({"email": email})
+    if user:
+        raise HTTPException(status_code=400, detail="Email already registered")
+    return {"available": True}
+
+
+@app.post("/auth/signup")
 async def signup(payload: SignUpRequest):
+    print(payload.dict())
     existing_user = await users_collection.find_one({"email": payload.email})
     if existing_user:
         raise HTTPException(status_code=400, detail="Email already registered")
     
+    financialDetails = {
+        "additionalDetails": payload.financialDetails.additionalDetails,
+        "income": payload.financialDetails.income,
+        "getsPension": payload.financialDetails.getsPension,
+        "pensionAmount": payload.financialDetails.pensionAmount,
+        "investsInStocks": payload.financialDetails.investsInStocks,
+        "yearlyStockInvestment": payload.financialDetails.yearlyStockInvestment,
+    }
+    
     user = {
-        "username": payload.username,
+        "firstName": payload.firstName,
+        "lastName": payload.lastName,
+        "address": payload.address,
         "email": payload.email,
+        "phone": payload.phone,
         "password": hash_password(payload.password),
-        "financialDetials": payload.financialDetials
+        "financialDetails": financialDetails
     }
     await users_collection.insert_one(user)
     return {"message": "User created successfully"}
 
-@app.post("/signin", response_model=TokenResponse)
+@app.post("/auth/signin", response_model=TokenResponse)
 async def signin(payload: SignInRequest):
     user = await users_collection.find_one({"email": payload.email})
     if not user or not verify_password(payload.password, user["password"]):
@@ -97,25 +98,19 @@ async def signin(payload: SignInRequest):
     token = create_jwt_token({"sub": user["email"]})
     return {"access_token": token}
 
-@app.get("/user/profile")
-async def get_me(token: str = Depends(oauth2_scheme)):
-    payload = decode_jwt_token(token)
-    if not payload:
-        raise HTTPException(status_code=401, detail="Invalid or expired token")
-
-    email = payload.get("sub")
-    user = await users_collection.find_one({"email": email})
-    if not user:
-        raise HTTPException(status_code=404, detail="User not found")
-
-    return {"username": user["username"], "email": user["email"]}
+@app.get("/home")
+async def get_profile(current_user: dict = Depends(get_current_user)):
+    return {
+        "email": current_user["email"]
+    }
 
 
 @app.post("/process/", response_model=List[ProcessedItemInDB], status_code=201)
 async def process_data_and_store(
     user_id: str = Form(...),
     image: Optional[UploadFile] = File(None),
-    user_explanation: Optional[str] = Form(None)
+    user_explanation: Optional[str] = Form(None),
+    current_user: dict = Depends(get_current_user)
 ):
     if not image and not user_explanation:
         raise HTTPException(
@@ -210,5 +205,5 @@ async def process_data_and_store(
 
 
 @app.get("/")
-def read_root():
+def read_root(current_user: dict = Depends(get_current_user)):
     return {"message": "Data Processing Service is running. Use the /process/ endpoint."}
