@@ -72,19 +72,21 @@ async def set_financial_goal(goal: FinancialGoal, current_user: dict = Depends(g
 
 
 # --- Endpoint 2: Get User Expenses ---
-@app.get("/expenses", response_model=List[ExpenseItem])
-async def get_user_expenses(current_user: dict = Depends(get_current_user)):
+@app.get("/expenses/{user_id}", response_model=List[ExpenseItem])
+async def get_user_expenses(user_id: str = Path(..., description="The ID of the user to fetch expenses for.")):
     """
     Fetches all the bill items (expenses) from the database for a specific user.
     """
-    user_id = current_user["email"]
     expenses_cursor = item_collection.find({"user_id": user_id})
-    expenses = await expenses_cursor.to_list(length=1000) # Capping at 1000 expenses for safety
+    expenses = await expenses_cursor.to_list(length=1000)
+
     if not expenses:
         raise HTTPException(status_code=404, detail="No expenses found for this user.")
-   
-    # for expense in expenses:
-    #     expense['id']=str(expense['_id'])
+
+    for expense in expenses:
+        expense["id"] = str(expense["_id"])
+        del expense["_id"]
+
     return expenses
 
 # --- Endpoint 3: Update expenses ---
@@ -94,28 +96,27 @@ async def update_expense(
     update_data: dict = Body(...)
 ):
     """
-    Updates an existing expense in MongoDB based on _id.
+    Updates an existing expense in MongoDB based on _id (ObjectId or string fallback).
     """
-    if not ObjectId.is_valid(expense_id):
-        raise HTTPException(status_code=400, detail="Invalid expense ID.")
-
-    # 🧼 Sanitize: Remove 'id' or '_id' from incoming update to prevent overwrite issues
+    # Sanitize incoming fields
     update_data.pop('id', None)
     update_data.pop('_id', None)
 
-    result = await item_collection.update_one(
-        {"_id": ObjectId(expense_id)},
-        {"$set": update_data}
-    )
+    query = {"_id": ObjectId(expense_id)} if ObjectId.is_valid(expense_id) else {"id": expense_id}
+
+    result = await item_collection.update_one(query, {"$set": update_data})
 
     if result.matched_count == 0:
         raise HTTPException(status_code=404, detail="Expense not found.")
 
-    updated_expense = await item_collection.find_one({"_id": ObjectId(expense_id)})
-    updated_expense['id'] = str(updated_expense['_id'])
-    del updated_expense['_id']
+    updated = await item_collection.find_one(query)
+    if updated:
+        updated["id"] = str(updated["_id"])
+        del updated["_id"]
+        return updated
+    else:
+        raise HTTPException(status_code=404, detail="Updated expense not found.")
 
-    return updated_expense
 
 # --- Endpoint 4: Delete User Expenses ---
 @app.delete("/expenses/{expense_id}")
