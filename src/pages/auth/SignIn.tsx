@@ -2,12 +2,14 @@ import { useForm } from "react-hook-form";
 import { useNavigate, Link } from "react-router-dom";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { DollarSign } from "lucide-react";
+import { DollarSign, Eye, EyeOff } from "lucide-react";
 import { useState } from "react";
 
 export default function Login() {
   const navigate = useNavigate();
   const [serverError, setServerError] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+
   const {
     register,
     handleSubmit,
@@ -16,16 +18,14 @@ export default function Login() {
 
   const onSubmit = async (data: any) => {
     setServerError("");
-    console.log(data)
     try {
       const res = await fetch("http://localhost:8000/auth/signin", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
       });
-      
+
       const result = await res.json();
-      console.log(res)
       if (res.ok) {
         localStorage.setItem("token", result.access_token);
         navigate("/");
@@ -86,23 +86,33 @@ export default function Login() {
               )}
             </div>
 
-            {/* Password */}
+            {/* Password with eye toggle */}
             <div>
               <label className="block text-sm font-medium text-muted-foreground mb-1">
                 Password <span className="text-red-500">*</span>
               </label>
-              <input
-                type="password"
-                {...register("password", {
-                  required: "Password is required",
-                  minLength: {
-                    value: 6,
-                    message: "Password must be at least 6 characters",
-                  },
-                })}
-                placeholder="Enter your password"
-                className="w-full border border-border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary"
-              />
+              <div className="relative">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  {...register("password", {
+                    required: "Password is required",
+                    minLength: {
+                      value: 6,
+                      message: "Password must be at least 6 characters",
+                    },
+                  })}
+                  placeholder="Enter your password"
+                  className="w-full border border-border rounded-md px-3 py-2 pr-10 focus:outline-none focus:ring-2 focus:ring-primary"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((prev) => !prev)}
+                  className="absolute inset-y-0 right-2 flex items-center text-muted-foreground hover:text-foreground"
+                  tabIndex={-1}
+                >
+                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-5" />}
+                </button>
+              </div>
               {errors.password && (
                 <p className="text-red-500 text-xs mt-1">{errors.password.message as string}</p>
               )}

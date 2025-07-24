@@ -104,13 +104,28 @@ async def get_profile(current_user: dict = Depends(get_current_user)):
         "email": current_user["email"]
     }
 
+@app.get("/getUserData")
+async def get_user_data(current_user: dict = Depends(get_current_user)):
+    # Access user's email or ID from JWT
+    user_email = current_user.get("email")
+    
+    # Get user data from DB
+    user_data = await users_collection.find_one({"email": user_email}, {"_id": 0})  # exclude _id if not needed
+
+    if not user_data:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    return user_data
+
+
 
 @app.post("/process/", response_model=List[ProcessedItemInDB], status_code=201)
 async def process_data_and_store(
     user_id: str = Form(...),
     image: Optional[UploadFile] = File(None),
+    image_base64: Optional[str] = Form(None),  # add this line!
     user_explanation: Optional[str] = Form(None),
-    current_user: dict = Depends(get_current_user)
+    # current_user: dict = Depends(get_current_user)
 ):
     if not image and not user_explanation:
         raise HTTPException(
@@ -148,7 +163,13 @@ async def process_data_and_store(
             pil_image = Image.open(io.BytesIO(contents))
             gemini_payload.append(pil_image)
             input_type = "image" if user_explanation else "image_only"
-
+        elif image_base64:
+            header, encoded = image_base64.split(",", 1)
+            image_bytes = base64.b64decode(encoded)
+            pil_image = Image.open(io.BytesIO(image_bytes))
+            gemini_payload.append(pil_image)
+            input_type = "image_base64" if user_explanation else "image_only_base64"
+        print(gemini_payload)
         model = genai.GenerativeModel("gemini-1.5-flash")
         response = await model.generate_content_async(gemini_payload)
         cleaned_text = response.text.replace("```json", "").replace("```", "").strip()
