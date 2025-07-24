@@ -5,11 +5,12 @@ import { useTranslation } from "react-i18next";
 
 interface WelcomeSectionProps {
   onGetStarted: () => void;
-  userEmail?: string;
+  firstName?: string;
+  secondName?: string;
 }
 
 
-export function WelcomeSection({ onGetStarted, userEmail }: WelcomeSectionProps) {
+export function WelcomeSection({ onGetStarted, firstName, secondName }: WelcomeSectionProps) {
   const { t } = useTranslation();
   const features = [
     {
@@ -40,7 +41,7 @@ export function WelcomeSection({ onGetStarted, userEmail }: WelcomeSectionProps)
       <div className="text-center space-y-6">
         <div className="space-y-4">
           <h1 className="text-senior-2xl font-bold text-foreground">
-            Hi {userEmail}, {t("welcome.title")}
+            Hi {firstName} {secondName}, {t("welcome.title")}
           </h1>
           <p className="text-senior-lg text-muted-foreground max-w-2xl mx-auto">
             {t("welcome.description")}
