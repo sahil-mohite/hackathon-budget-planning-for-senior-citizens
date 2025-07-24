@@ -48,7 +48,7 @@ const Index = () => {
       }
 
       try {
-        const res = await fetch("http://localhost:8000/getUserData", {
+        const res = await fetch("http://localhost:8050/getUserData", {
           headers: {
             Authorization: `Bearer ${token}`,
           },

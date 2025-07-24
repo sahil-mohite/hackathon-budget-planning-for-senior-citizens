@@ -48,7 +48,7 @@ const SignUpFirstPage = () => {
 
     if (formData.firstName && formData.lastName && formData.email && formData.password) {
 
-      const res = await fetch(`http://localhost:8000/auth/validate-email?email=${formData.email}`, {
+      const res = await fetch(`http://localhost:8050/auth/validate-email?email=${formData.email}`, {
         method: "GET"
       })
 

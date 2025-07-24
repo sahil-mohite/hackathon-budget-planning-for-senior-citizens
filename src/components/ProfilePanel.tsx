@@ -81,7 +81,7 @@ export function ProfilePanel({ isOpen, onClose, userData }: ProfilePanelProps) {
     };
 
     try {
-      const response = await fetch("http://localhost:8000/updateUserData", {
+      const response = await fetch("http://localhost:8050/updateUserData", {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
