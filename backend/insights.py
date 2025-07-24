@@ -61,7 +61,9 @@ async def set_financial_goal(goal: FinancialGoal, current_user: dict = Depends(g
 
 # --- Endpoint 2: Get User Expenses ---
 @router.get("/expenses/{user_id}", response_model=List[ExpenseItem])
-async def get_user_expenses(user_id: str = Path(..., description="The ID of the user to fetch expenses for."), current_user: dict = Depends(get_current_user)):
+async def get_user_expenses(user_id: str = Path(..., description="The ID of the user to fetch expenses for.") 
+                           # current_user: dict = Depends(get_current_user)
+                            ):
     """
     Fetches all the bill items (expenses) from the database for a specific user.
     """
