@@ -10,23 +10,8 @@ interface WelcomeSectionProps {
 
 
 export function WelcomeSection({ onGetStarted, userEmail }: WelcomeSectionProps) {
-
+  const { t } = useTranslation();
   const features = [
-    {
-      icon: Mic,
-      title: "Voice Control",
-      description: "Simply speak your expenses - no typing needed",
-    },
-    {
-      icon: BarChart3,
-      title: "Smart Insights",
-      description: "AI-powered budget analysis and recommendations",
-    },
-    {
-      icon: Shield,
-      title: "Secure & Private",
-      description: "Your financial data is protected and private",
-    },
     {
       icon: Globe,
       title: t("features.voice.title"),
@@ -102,25 +87,25 @@ export function WelcomeSection({ onGetStarted, userEmail }: WelcomeSectionProps)
       </div> */}
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 max-w-3xl mx-auto px-4">
-  {features.map((feature, index) => {
-    const Icon = feature.icon;
-    return (
-      <Card
-        key={index}
-        className="flex flex-col items-center text-center p-6 rounded-2xl border border-[#C8F7DC] shadow-md bg-white transition-transform hover:scale-[1.02]"
-        style={{ height: "180px", minWidth: "240px" }}
-      >
-        <div className="w-12 h-12 mb-3 bg-[#E6F9EF] rounded-lg flex items-center justify-center">
-          <Icon className="h-6 w-6 text-green-600" />
-        </div>
-        <h3 className="font-semibold text-[17px] text-gray-900">{feature.title}</h3>
-        <p className="text-sm text-gray-500 mt-1">{feature.description}</p>
-      </Card>
-    );
-  })}
-</div>
+        {features.map((feature, index) => {
+          const Icon = feature.icon;
+          return (
+            <Card
+              key={index}
+              className="flex flex-col items-center text-center p-6 rounded-2xl border border-[#C8F7DC] shadow-md bg-white transition-transform hover:scale-[1.02]"
+              style={{ height: "180px", minWidth: "240px" }}
+            >
+              <div className="w-12 h-12 mb-3 bg-[#E6F9EF] rounded-lg flex items-center justify-center">
+                <Icon className="h-6 w-6 text-green-600" />
+              </div>
+              <h3 className="font-semibold text-[17px] text-gray-900">{feature.title}</h3>
+              <p className="text-sm text-gray-500 mt-1">{feature.description}</p>
+            </Card>
+          );
+        })}
+      </div>
 
-      
+
       {/* Quick Start Tips */}
       <Card className="p-6 bg-accent border-border mx-4">
         <div className="space-y-4">
