@@ -12,6 +12,8 @@ from auth import hash_password, verify_password, create_jwt_token, get_current_u
 from models import SignUpRequest, SignInRequest, TokenResponse, ProcessedItemInDB
 from fastapi.security import OAuth2PasswordBearer
 from database import users_collection, item_collection
+from pydantic import BaseModel, EmailStr, Field,constr
+from typing import Optional
 
 import google.generativeai as genai
 from PIL import Image
@@ -116,6 +118,63 @@ async def get_user_data(current_user: dict = Depends(get_current_user)):
         raise HTTPException(status_code=404, detail="User not found")
 
     return user_data
+
+
+class FinancialDetails(BaseModel):
+    additionalDetails: Optional[str] = None
+    income: Optional[str] = None
+    getsPension: Optional[bool] = None
+    pensionAmount: Optional[str] = None
+    investsInStocks: Optional[bool] = None
+    yearlyStockInvestment: Optional[str] = None
+
+class UserUpdate(BaseModel):
+    firstName: Optional[str] = None
+    lastName: Optional[str] = None
+    address: Optional[str] = None
+    #email: Optional[EmailStr] = None  # Usually not updated, but optional here
+    phone: Optional[constr(pattern=r'^\+?\d{10}$')] = None
+    #password: Optional[str] = None  # Handle password updates carefully!
+    financialDetails: Optional[FinancialDetails] = None
+
+
+@app.put("/updateUserData")
+async def update_user_data(
+    user_update: UserUpdate,
+    current_user: dict = Depends(get_current_user)
+):
+    user_email = current_user.get("email")
+
+    existing_user = await users_collection.find_one({"email": user_email})
+    if not existing_user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    update_data = user_update.dict(exclude_unset=True)
+
+    # If updating password, hash it before saving (optional, depends on your auth flow)
+    if "password" in update_data:
+        # example: update_data["password"] = hash_password(update_data["password"])
+        pass
+
+    # Update nested financialDetails if present
+    if "financialDetails" in update_data:
+        financial_update = update_data.pop("financialDetails")
+        # Use MongoDB $set with dot notation to update nested fields
+        for key, value in financial_update.items():
+            update_data[f"financialDetails.{key}"] = value
+
+    if not update_data:
+        raise HTTPException(status_code=400, detail="No fields provided for update")
+
+    result = await users_collection.update_one(
+        {"email": user_email},
+        {"$set": update_data}
+    )
+
+    if result.modified_count == 0:
+        return {"message": "No changes were made to the user data."}
+
+    return {"message": "User data updated successfully", "updated_fields": update_data}
 
 
 
