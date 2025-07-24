@@ -9,6 +9,7 @@ from dotenv import load_dotenv
 from models import FinancialGoal, GoalInDB, ExpenseItem, InsightResponse
 from auth import get_current_user
 from database import item_collection, goal_collection
+from fastapi.middleware.cors import CORSMiddleware
 
 # Load environment variables from .env file
 load_dotenv()
@@ -17,8 +18,20 @@ load_dotenv()
 GOOGLE_API_KEY = os.environ.get("GOOGLE_API_KEY")
 
 # --- Initialize FastAPI Router ---
-# Using APIRouter allows us to keep these endpoints separate from main.py
+app = FastAPI()
+
+# ✅ Add CORS middleware here
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # or ["*"] for all origins
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# ✅ Then include your router
 router = APIRouter()
+app.include_router(router)
 
 
 # --- Configure Gemini API ---
