@@ -7,7 +7,7 @@ from typing import List
 import google.generativeai as genai
 from dotenv import load_dotenv
 from models import FinancialGoal, GoalInDB, ExpenseItem, InsightResponse
-from auth import get_current_user
+from auth_utils import get_current_user
 from database import item_collection, goal_collection
 
 # Load environment variables from .env file

@@ -5,7 +5,7 @@ from pydantic import BaseModel
 import google.generativeai as genai
 from dotenv import load_dotenv
 
-from auth import get_current_user
+from backend.user import get_current_user
 
 # Load environment variables from .env file
 load_dotenv()
