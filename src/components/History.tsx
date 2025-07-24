@@ -139,7 +139,7 @@ export const History = () => {
                                 <Td>{expense.item_name}</Td>
                                 <Td>{expense.quantity}</Td>
                                 <Td>{expense.category}</Td>
-                                <Td>${expense.total_amount.toFixed(2)}</Td>
+                                <Td>₹{expense.total_amount.toFixed(2)}</Td>
                                 <Td className="flex gap-2">
                                     {/* Edit Dialog */}
                                     <Dialog>

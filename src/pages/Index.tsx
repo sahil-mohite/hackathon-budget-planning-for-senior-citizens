@@ -9,7 +9,6 @@ import { Card } from "@/components/ui/card";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { HelpSection } from "@/components/HelpSection";
-import { HistorySection } from "@/components/HistorySection";
 import { Clock, HelpCircle, X } from "lucide-react";
 import { History } from "@/components/History";
 
@@ -97,7 +96,7 @@ const Index = () => {
 
       case "history":
         return (
-          <HistorySection/>
+          <History/>
         );
 
       case "help":
