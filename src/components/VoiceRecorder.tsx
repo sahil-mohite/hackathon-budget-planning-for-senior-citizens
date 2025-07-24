@@ -137,7 +137,9 @@ export function VoiceRecorder() {
       // Append image-related fields
 
       formData.append("user_id", "user-001-1");
-
+      if (trimmedInput) {
+        formData.append("user_explanation", trimmedInput);
+      }
       // formData.append("image", imagePreview);
 
       if (
@@ -180,6 +182,9 @@ export function VoiceRecorder() {
       setOutMessage(message);
     } catch (error) {
       console.error("Failed to send message:", error);
+      setOutMessage(
+        "An unexpected error occurred while processing your request."
+      );
     }
 
     // Update local chat
@@ -260,6 +265,9 @@ export function VoiceRecorder() {
     const reader = new FileReader();
     reader.onload = () => {
       setImagePreview(reader.result as string);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
     };
     reader.readAsDataURL(file);
   };
