@@ -72,3 +72,12 @@ class InsightResponse(BaseModel):
     user_id: str
     goal_description: str
     insights: str
+
+class UserUpdate(BaseModel):
+    firstName: Optional[str] = None
+    lastName: Optional[str] = None
+    address: Optional[str] = None
+    #email: Optional[EmailStr] = None  # Usually not updated, but optional here
+    phone: Optional[str] = None
+    #password: Optional[str] = None  # Handle password updates carefully!
+    financialDetails: Optional[FinancialDetails] = None
