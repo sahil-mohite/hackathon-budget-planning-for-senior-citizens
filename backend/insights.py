@@ -82,7 +82,7 @@ async def get_user_expenses(current_user: dict = Depends(get_current_user)):
     expenses = await expenses_cursor.to_list(length=1000)
 
     if not expenses:
-        raise HTTPException(status_code=404, detail="No expenses found for this user.")
+        return []
 
     for expense in expenses:
         expense["id"] = str(expense["_id"])
