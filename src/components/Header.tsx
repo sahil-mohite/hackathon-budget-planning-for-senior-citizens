@@ -2,13 +2,7 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import {
-  UserCircle,
-  Globe,
-  Bell,
-  DollarSign,
-  Menu,
-} from "lucide-react";
+import { UserCircle, Bell, DollarSign, Menu } from "lucide-react";
 import { LanguageSelector } from "./LanguageSelector";
 import { NotificationCenter } from "./NotificationCenter";
 import { SettingsPanel } from "./SettingsPanel";
@@ -26,7 +20,7 @@ type FinancialDetails = {
 interface UserData {
   firstName: string;
   lastName: string;
-  email: string; // ✅ required for Header
+  email: string;
   address: string;
   phone: string;
   financialDetails: FinancialDetails;
@@ -44,14 +38,14 @@ export function Header({ onMenuToggle, showMenuButton = false, userData }: Heade
   const [showSettings, setShowSettings] = useState(false);
   const [showLanguageSelector, setShowLanguageSelector] = useState(false);
 
-  const unreadNotifications = 2; // This would come from your notification state
+  const unreadNotifications = 2; // Replace with real notification count
 
   return (
     <>
       <header className="bg-card border-b border-border shadow-gentle sticky top-0 z-40">
-        <div className="container mx-auto px-4 sm:px-6 py-3 sm:py-4">
+        <div className="container mx-auto px-4 sm:px-6 py-3 sm:py-2.5">
           <div className="flex items-center justify-between">
-            {/* Mobile Menu Button + Logo */}
+            {/* Left: Menu & Logo */}
             <div className="flex items-center gap-3 sm:gap-4">
               {showMenuButton && (
                 <Button
@@ -65,23 +59,23 @@ export function Header({ onMenuToggle, showMenuButton = false, userData }: Heade
               )}
 
               <div className="flex items-center gap-3 sm:gap-4">
-                <div className="h-10 w-10 sm:h-12 sm:w-12 bg-gradient-primary rounded-lg flex items-center justify-center">
-                  <DollarSign className="h-5 w-5 sm:h-7 sm:w-7 text-primary-foreground" />
+                <div className="h-10 w-10 sm:h-11 sm:w-11 bg-gradient-primary rounded-lg flex items-center justify-center">
+                  <DollarSign className="h-5 w-5 sm:h-6 sm:w-6 text-primary-foreground" />
                 </div>
 
                 {/* Desktop title */}
-                <div className="hidden sm:block">
-                  <h1 className="text-senior-base sm:text-senior-lg font-bold text-foreground">
+                <div className="hidden sm:block leading-tight">
+                  <h1 className="text-base sm:text-lg font-bold text-foreground">
                     {t("header.app_title")}
                   </h1>
-                  <p className="text-senior-sm text-muted-foreground hidden md:block">
+                  <p className="text-sm text-muted-foreground hidden md:block">
                     {t("header.app_title_full")}
                   </p>
                 </div>
 
                 {/* Mobile title */}
                 <div className="sm:hidden">
-                  <h1 className="text-senior-sm font-bold text-foreground">
+                  <h1 className="text-sm font-bold text-foreground">
                     {t("header.app_title")}
                   </h1>
                 </div>
