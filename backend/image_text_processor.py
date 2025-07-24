@@ -56,10 +56,8 @@ async def process_data_and_store(
     user_id: str = Form(...),
     image: Optional[UploadFile] = File(None),
     image_base64: Optional[str] = Form(None),  # add this line!
-    user_explanation: Optional[str] = Form(None),
-    # current_user: dict = Depends(get_current_user)
+    user_explanation: Optional[str] = Form(None)
 ):
-    user_id = current_user["email"]
     if not image and not user_explanation:
         raise HTTPException(
             status_code=400,
