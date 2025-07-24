@@ -12,10 +12,11 @@ DB_NAME = "Billing-Db"
 
 MONGO_URL = (
     f"mongodb+srv://{MONGO_USERNAME}:{MONGO_PASSWORD}"
-    f"@{CLUSTER_NAME}.mongodb.net/?retryWrites=true&w=majority&appName=Billing-Data"
+    f"@billing-data.rgnagne.mongodb.net/?retryWrites=true&w=majority&appName=Billing-Data"
 )
 
 client = AsyncIOMotorClient(MONGO_URL)
+DB_NAME = "Billing-Db"
 auth_db = client[DB_NAME]
 users_collection = auth_db["users"]
 database = client[DB_NAME]

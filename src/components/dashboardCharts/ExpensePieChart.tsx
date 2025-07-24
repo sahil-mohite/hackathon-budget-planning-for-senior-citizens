@@ -25,7 +25,7 @@ const ExpensePieChart = ({ data }: { data: CategoryExpense[] }) => {
           outerRadius={100}
           dataKey="value"
           nameKey="category"
-          label={({ category, value }) => `${category}: $${value.toFixed(0)}`}
+          label={({ category, value }) => `${category}: ₹${value.toFixed(0)}`}
         >
           {data.map((_, index) => (
             <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />

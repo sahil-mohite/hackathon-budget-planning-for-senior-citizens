@@ -1,6 +1,6 @@
 import React from 'react';
 import { Card } from '@/components/ui/card';
-import { DollarSign, Calendar, ArrowUpCircle, PieChart } from 'lucide-react';
+import { IndianRupee, Calendar, ArrowUpCircle, PieChart } from 'lucide-react';
 
 type DailyExpense = { day: string; expense: number };
 type CategoryBreakdown = { category: string; value: number };
@@ -27,22 +27,22 @@ const KpiCards: React.FC<Props> = ({ dailyExpenses, categoryBreakdown }) => {
   const kpis = [
     {
       title: 'Total Weekly Spend',
-      value: `$${totalSpend.toFixed(2)}`,
-      icon: <DollarSign className="h-5 w-5 text-primary" />,
+      value: `₹${totalSpend.toFixed(2)}`,
+      icon: <IndianRupee className="h-5 w-5 text-primary" />,
     },
     {
       title: 'Average Daily Spend',
-      value: `$${averageSpend.toFixed(2)}`,
+      value: `₹${averageSpend.toFixed(2)}`,
       icon: <Calendar className="h-5 w-5 text-primary" />,
     },
     {
       title: 'Highest Spend Day',
-      value: `${highestDay.day} ($${highestDay.expense.toFixed(2)})`,
+      value: `${highestDay.day} (₹${highestDay.expense.toFixed(2)})`,
       icon: <ArrowUpCircle className="h-5 w-5 text-primary" />,
     },
     {
       title: 'Top Category',
-      value: `${topCategory.category} ($${topCategory.value.toFixed(2)})`,
+      value: `${topCategory.category} (₹${topCategory.value.toFixed(2)})`,
       icon: <PieChart className="h-5 w-5 text-primary" />,
     },
   ];

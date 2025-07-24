@@ -29,10 +29,17 @@ const DashboardContainer = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch('/newData.json')
+    const token = localStorage.getItem("token");
+    fetch('http://localhost:8090/expenses', {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      })
       .then((res) => res.json())
-      .then((json: { data: RawExpense[] }) => {
-        const rawData = json.data;
+      .then((rawData: RawExpense[])=>{
+        console.log(rawData)
 
         const dailyMap = new Map<string, number>();
         const categoryMap = new Map<string, number>();
@@ -61,7 +68,7 @@ const DashboardContainer = () => {
         setLoading(false);
       })
       .catch((err) => {
-        console.error('Failed to fetch data:', err);
+        console.error("Failed to fetch data:", err.message);
         setLoading(false);
       });
   }, []);

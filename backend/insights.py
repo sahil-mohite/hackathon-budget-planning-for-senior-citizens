@@ -7,7 +7,7 @@ from typing import List
 import google.generativeai as genai
 from dotenv import load_dotenv
 from models import FinancialGoal, GoalInDB, ExpenseItem, InsightResponse
-from auth import get_current_user
+from auth_utils import get_current_user
 from database import item_collection, goal_collection
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi import APIRouter, HTTPException, Path, Body
@@ -31,9 +31,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# ✅ Then include your router
-router = APIRouter()
-app.include_router(router)
 
 
 # --- Configure Gemini API ---
@@ -53,7 +50,7 @@ def fix_object_id(doc):
     return doc
 
 # --- Endpoint 1: Set Financial Goal ---
-@router.post("/goals", response_model=GoalInDB, status_code=201)
+@app.post("/goals", response_model=GoalInDB, status_code=201)
 async def set_financial_goal(goal: FinancialGoal, current_user: dict = Depends(get_current_user)):
     """
     Accepts a user_id and their financial goal for the month and stores it.
@@ -75,24 +72,23 @@ async def set_financial_goal(goal: FinancialGoal, current_user: dict = Depends(g
 
 
 # --- Endpoint 2: Get User Expenses ---
-@router.get("/expenses/{user_id}", response_model=List[ExpenseItem])
-async def get_user_expenses(user_id: str = Path(..., description="The ID of the user to fetch expenses for.") 
-                           # current_user: dict = Depends(get_current_user)
-                            ):
+@app.get("/expenses", response_model=List[ExpenseItem])
+async def get_user_expenses(current_user: dict = Depends(get_current_user)):
     """
     Fetches all the bill items (expenses) from the database for a specific user.
     """
+    user_id = current_user["email"]
     expenses_cursor = item_collection.find({"user_id": user_id})
     expenses = await expenses_cursor.to_list(length=1000) # Capping at 1000 expenses for safety
     if not expenses:
         raise HTTPException(status_code=404, detail="No expenses found for this user.")
    
-    for expense in expenses:
-        expense['id']=str(expense['_id'])
+    # for expense in expenses:
+    #     expense['id']=str(expense['_id'])
     return expenses
 
 # --- Endpoint 3: Update expenses ---
-@router.put("/expenses/{expense_id}")
+@app.put("/expenses/{expense_id}")
 async def update_expense(
     expense_id: str = Path(..., description="The ID of the expense to update"),
     update_data: dict = Body(...)
@@ -122,7 +118,7 @@ async def update_expense(
     return updated_expense
 
 # --- Endpoint 4: Delete User Expenses ---
-@router.delete("/expenses/{expense_id}")
+@app.delete("/expenses/{expense_id}")
 async def delete_expense(
     expense_id: str = Path(..., description="The ID of the expense to delete")
 ):
@@ -137,7 +133,7 @@ async def delete_expense(
     return {"message": "Expense deleted successfully", "id": expense_id}
 
 # --- Endpoint 5: Get Financial Insights ---
-@router.get("/insights/{user_id}", response_model=InsightResponse)
+@app.get("/insights/{user_id}", response_model=InsightResponse)
 async def get_financial_insights(user_id: str = Path(..., description="The ID of the user to generate insights for."), current_user: dict = Depends(get_current_user)):
     """
     Fetches the user's goal and expenses, then uses Gemini to generate insights.
