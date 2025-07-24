@@ -4,6 +4,7 @@ python -m venv venv
 
 venv/Scripts/activate.bat
 
+
 pip install -r ./backend/requirements.txt
 
 uvicorn image_text_processor:app --reload --port 8000
