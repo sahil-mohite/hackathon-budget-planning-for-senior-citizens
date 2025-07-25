@@ -24,6 +24,7 @@ interface UserData {
   address: string;
   phone: string;
   financialDetails: FinancialDetails;
+  financialGoals: string;
 }
 
 interface HeaderProps {

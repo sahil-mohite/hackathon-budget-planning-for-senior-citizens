@@ -81,3 +81,4 @@ class UserUpdate(BaseModel):
     phone: Optional[str] = None
     #password: Optional[str] = None  # Handle password updates carefully!
     financialDetails: Optional[FinancialDetails] = None
+    financialGoals: Optional[str] = None
