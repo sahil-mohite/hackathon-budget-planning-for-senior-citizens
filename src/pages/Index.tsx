@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { HelpSection } from "@/components/HelpSection";
 import { X } from "lucide-react";
 import { History } from "@/components/History";
+import { useNavigate } from "react-router";
 
 // Types
 interface FinancialDetails {
@@ -31,6 +32,7 @@ interface UserData {
 }
 
 const Index = () => {
+  const navigate = useNavigate()
   const [activeSection, setActiveSection] = useState("home");
   const [transcript, setTranscript] = useState("");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -51,13 +53,18 @@ const Index = () => {
             Authorization: `Bearer ${token}`,
           },
         });
+        if(res.status==401){
+          localStorage.removeItem('token')
+          navigate('/login')
+        }
+        else{
+          const data = await res.json();
 
-        const data = await res.json();
-
-        if (res.ok) {
-          setUserData(data);
-        } else {
-          console.error("User fetch failed:", data);
+          if (res.ok) {
+            setUserData(data);
+          } else {
+            console.error("User fetch failed:", data);
+          }
         }
       } catch (err) {
         console.error("Error fetching user:", err);

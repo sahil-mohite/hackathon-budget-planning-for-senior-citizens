@@ -45,7 +45,9 @@ const DashboardContainer = () => {
           localStorage.removeItem('token')
           navigate('/login')
         }
-        return res.json()
+        else{
+          return res.json()
+        }
       })
       .then((rawData: RawExpense[])=>{
         console.log(rawData)

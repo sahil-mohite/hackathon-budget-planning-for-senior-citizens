@@ -89,11 +89,15 @@ export function ProfilePanel({ isOpen, onClose, userData }: ProfilePanelProps) {
         },
         body: JSON.stringify(updatedUser),
       });
-
-      if (!response.ok) throw new Error("Failed to update profile");
-      alert("Profile updated successfully");
+      if(response.status==401){
+        localStorage.removeItem('token')
+        navigate('/login')
+      }
+      else{
+        if (!response.ok) throw new Error("Failed to update profile");
+        alert("Profile updated successfully");
+      }
     } catch (error) {
-      console.error(error);
       alert("There was an error updating your profile.");
     }
   };

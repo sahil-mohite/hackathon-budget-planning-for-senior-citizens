@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { ScrollDownButton } from "@/components/ScrollDownButton";
 import { Card } from "./ui/card";
+import { useNavigate } from "react-router-dom";
 
 interface Message {
   sender: "user" | "bot";
@@ -62,6 +63,7 @@ export function VoiceRecorder() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const silenceTimerRef = useRef<NodeJS.Timeout | null>(null);
   const [outMessage, setOutMessage] = useState<string>("");
+  const navigate = useNavigate();
 
   const { transcript, resetTranscript, browserSupportsSpeechRecognition } =
     useSpeechRecognition();
@@ -189,21 +191,25 @@ export function VoiceRecorder() {
         },
         body: formData
       });
-      console.log(response);
+      if(response.status==401){
+        localStorage.removeItem('token')
+        navigate('/login')
+      }
+      else{
+        const data = await response.json(); // parse JSON response
 
-      const data = await response.json(); // parse JSON response
+        const message = data
+          .map(
+            (item) =>
+              `item name: ${item.item_name} \n item price:${item.unit_price}\n item catagoery:  ${item.category}`
+          )
+          .join(", ");
 
-      const message = data
-        .map(
-          (item) =>
-            `item name: ${item.item_name} \n item price:${item.unit_price}\n item catagoery:  ${item.category}`
-        )
-        .join(", ");
+        console.log("Constructed message:", message);
 
-      console.log("Constructed message:", message);
-
-      // Assuming you have a React state setter called setOutMessageState
-      setOutMessage(message);
+        // Assuming you have a React state setter called setOutMessageState
+        setOutMessage(message);
+      }
     } catch (error) {
       console.error("Failed to send message:", error);
       setOutMessage("Oops! Something went wrong. Please try again later.");
