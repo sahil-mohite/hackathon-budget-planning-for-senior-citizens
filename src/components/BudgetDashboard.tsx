@@ -3,6 +3,7 @@ import {
 } from "lucide-react";
 import DashboardContainer from "./dashboardCharts/DashboardContainer";
 import { ScrollDownButton } from "./ScrollDownButton";
+import Insights from "./dashboardCharts/Insights";
 
 
 export function BudgetDashboard() {
@@ -15,7 +16,7 @@ export function BudgetDashboard() {
           Monthly Budget Overview
         </h2>
         <p className="text-senior-base text-muted-foreground">
-          Your spending breakdown for this month
+          Your spending breakdown
         </p>
       </div>
 
@@ -25,6 +26,7 @@ export function BudgetDashboard() {
         Analytics Overview
       </h3>
       <DashboardContainer />
+      <Insights/>
       {/* Scroll Button */}
       <ScrollDownButton
         onClick={() => {

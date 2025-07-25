@@ -17,6 +17,7 @@ type SignupFormData = {
   address: string;
   phone: string;
   financialDetails: FinancialDetails;
+  financialGoals: string;
 };
 
 type SignupContextType = {
@@ -41,6 +42,7 @@ const initialState: SignupFormData = {
     yearlyStockInvestment: "",
     additionalDetails: "",
   },
+  financialGoals: ""
 };
 
 export const SignupProvider = ({ children }: { children: ReactNode }) => {

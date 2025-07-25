@@ -14,7 +14,7 @@ const SignUpSecondPage = () => {
   const [showStockFields, setShowStockFields] = useState(formData.financialDetails?.investsInStocks || false);
   const [getsPension, setGetsPension] = useState(formData.financialDetails?.getsPension || false);
 
-  const [errors, setErrors] = useState<{ phone?: string; income?: string; address?: string }>({});
+  const [errors, setErrors] = useState<{ phone?: string; income?: string; address?: string; financialGoals?: string; }>({});
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -61,6 +61,10 @@ const SignUpSecondPage = () => {
 
     if (!formData.address || formData.address.trim().length < 5) {
       newErrors.address = "Address must be at least 5 characters.";
+    }
+
+    if(formData.financialGoals.trim().length < 10){
+      newErrors.financialGoals = "Financial Goals must be at least 10 characters.";
     }
 
     setErrors(newErrors);
@@ -141,6 +145,7 @@ const SignUpSecondPage = () => {
                 value={formData.phone}
                 onChange={handleChange}
                 placeholder="Enter 10-digit phone number"
+                required
               />
               {errors.phone && <p className="text-xs text-red-500 mt-1">{errors.phone}</p>}
             </div>
@@ -153,6 +158,7 @@ const SignUpSecondPage = () => {
                 value={formData.financialDetails?.income}
                 onChange={handleChange}
                 placeholder="Enter yearly income"
+                required
               />
               {errors.income && <p className="text-xs text-red-500 mt-1">{errors.income}</p>}
             </div>
@@ -165,6 +171,7 @@ const SignUpSecondPage = () => {
                 value={formData.address}
                 onChange={handleChange}
                 placeholder="123 Main Street, City"
+                required
               />
               {errors.address && <p className="text-xs text-red-500 mt-1">{errors.address}</p>}
             </div>
@@ -231,11 +238,26 @@ const SignUpSecondPage = () => {
             <div>
               <label className="text-sm font-medium text-muted-foreground">Additional Details (Optional)</label>
               <Input
+                type="text"
                 name="additionalDetails"
                 value={formData.financialDetails?.additionalDetails}
                 onChange={handleChange}
                 placeholder="Any other info you'd like to share"
               />
+            </div>
+
+            {/* Financial Goals */}
+            <div>
+              <label className="text-sm font-medium text-muted-foreground">Financial Goals <span className="text-red-500">*</span></label>
+              <Input
+                type="text"
+                name="financialGoals"
+                value={formData.financialGoals}
+                onChange={handleChange}
+                placeholder="Please set your Financial goal"
+                required
+              />
+              {errors.financialGoals && <p className="text-xs text-red-500 mt-1">{errors.financialGoals}</p>}
             </div>
 
             <Button onClick={handleSubmit} className="w-full mt-4">Complete Signup</Button>

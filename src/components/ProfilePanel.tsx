@@ -22,6 +22,7 @@ interface UserData {
   address: string;
   phone: string;
   financialDetails: FinancialDetails;
+  financialGoals: string;
 }
 
 interface ProfilePanelProps {
@@ -41,8 +42,10 @@ export function ProfilePanel({ isOpen, onClose, userData }: ProfilePanelProps) {
   };
 
   const handleUpdate = (e: React.ChangeEvent<HTMLInputElement>) => {
+    console.log(e.target)
     const { name, value } = e.target;
     const sanitizedValue = value.trim() === "" ? "NA" : value;
+    console.log(sanitizedValue)
     if (name in user.financialDetails) {
       setUser((prev) => ({
         ...prev,
@@ -54,6 +57,7 @@ export function ProfilePanel({ isOpen, onClose, userData }: ProfilePanelProps) {
   };
 
   const handleSubmit = async () => {
+    console.log(user)
     const phoneRegex = /^\d{10}$/;
     const incomeRegex = /^\d+$/;
 
@@ -78,6 +82,7 @@ export function ProfilePanel({ isOpen, onClose, userData }: ProfilePanelProps) {
       },
       phone: user.phone || "NA",
       address: user.address || "NA",
+      financialGoals: user.financialGoals || "NA"
     };
 
     try {
@@ -89,6 +94,7 @@ export function ProfilePanel({ isOpen, onClose, userData }: ProfilePanelProps) {
         },
         body: JSON.stringify(updatedUser),
       });
+      console.log(response.json())
       if(response.status==401){
         localStorage.removeItem('token')
         navigate('/login')
@@ -96,6 +102,7 @@ export function ProfilePanel({ isOpen, onClose, userData }: ProfilePanelProps) {
       else{
         if (!response.ok) throw new Error("Failed to update profile");
         alert("Profile updated successfully");
+        setUser(updatedUser)
       }
     } catch (error) {
       alert("There was an error updating your profile.");
@@ -186,6 +193,15 @@ export function ProfilePanel({ isOpen, onClose, userData }: ProfilePanelProps) {
             <Input
               name="additionalDetails"
               value={user.financialDetails.additionalDetails}
+              onChange={handleUpdate}
+              placeholder="NA"
+            />
+          </div>
+          <div>
+            <Label>Financial Goals</Label>
+            <Input
+              name="financialGoals"
+              value={user.financialGoals}
               onChange={handleUpdate}
               placeholder="NA"
             />

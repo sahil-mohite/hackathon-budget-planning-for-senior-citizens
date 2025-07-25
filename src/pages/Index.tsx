@@ -29,6 +29,7 @@ interface UserData {
   address: string;
   phone: string;
   financialDetails: FinancialDetails;
+  financialGoals: string;
 }
 
 const Index = () => {

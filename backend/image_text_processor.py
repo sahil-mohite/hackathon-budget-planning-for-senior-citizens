@@ -8,7 +8,7 @@ import datetime
 import json
 from fastapi import FastAPI, File, UploadFile, Form, HTTPException, Depends
 from fastapi.middleware.cors import CORSMiddleware
-from typing import Optional, List
+from typing import Optional, List, Union
 from auth_utils import get_current_user
 from models import ProcessedItemInDB
 from database import item_collection
@@ -52,14 +52,15 @@ def fix_object_id(doc):
 
 # --- API Endpoint ---
 
-@app.post("/process", response_model=List[ProcessedItemInDB], status_code=201)
+@app.post("/process", response_model=Union[List[ProcessedItemInDB], dict], status_code=201)
 async def process_data_and_store(
     current_user: dict = Depends(get_current_user),
     image: Optional[UploadFile] = File(None),
-    image_base64: Optional[str] = Form(None),  # add this line!
+    image_base64: Optional[str] = Form(None),
     user_explanation: Optional[str] = Form(None)
 ):
     user_id = current_user["email"]
+
     if not image and not user_explanation:
         raise HTTPException(
             status_code=400,
@@ -80,7 +81,10 @@ async def process_data_and_store(
         - `category`: The category of the item. Choose from one of the following options: ['Retail', 'Food', 'Clothing', 'Travel', 'Entertainment', 'Utilities', 'Other'].
 
     IMPORTANT: For every item in the 'items' array, the 'unit_price', 'quantity', and 'category' fields MUST NOT be null. If you cannot determine these values for an item, do not include that item in the list. If no items have all the required fields, return an empty 'items' list.
+
+    If no bill information is present or cannot be extracted, behave like a regular chatbot and respond conversationally.
     """
+
     final_prompt = base_prompt
     if user_explanation:
         final_prompt += f"\n\nHere is some additional context from the user: '{user_explanation}'"
@@ -96,67 +100,56 @@ async def process_data_and_store(
             pil_image = Image.open(io.BytesIO(contents))
             gemini_payload.append(pil_image)
             input_type = "image" if user_explanation else "image_only"
+
         elif image_base64:
             header, encoded = image_base64.split(",", 1)
             image_bytes = base64.b64decode(encoded)
             pil_image = Image.open(io.BytesIO(image_bytes))
             gemini_payload.append(pil_image)
             input_type = "image_base64" if user_explanation else "image_only_base64"
-        print(gemini_payload)
+
         model = genai.GenerativeModel("gemini-1.5-flash")
         response = await model.generate_content_async(gemini_payload)
         cleaned_text = response.text.replace("```json", "").replace("```", "").strip()
-        generated_json = json.loads(cleaned_text)
 
-    except json.JSONDecodeError:
-        error_message = "Sorry, the AI could not return a valid format. Please try again."
-        raise HTTPException(status_code=422, detail=error_message)
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"An unexpected error occurred during AI processing: {e}")
+        print("[Gemini Response]:", cleaned_text)
 
-    # --- Data Processing and Individual Storage ---
-    items_to_store = []
-    bill_items = generated_json.get("items")
+        try:
+            generated_json = json.loads(cleaned_text)
+        except json.JSONDecodeError:
+            return {"message": cleaned_text}
 
-    if not bill_items or not isinstance(bill_items, list):
-        raise HTTPException(status_code=422, detail="AI response did not contain a valid list of items.")
+        bill_items = generated_json.get("items")
+        if not bill_items or not isinstance(bill_items, list):
+            return {"message": cleaned_text}
 
-    # --- NEW VALIDATION STEP ---
-    # This loop ensures data integrity before saving to the database.
-    for item in bill_items:
-        if not all(k in item and item[k] is not None for k in ['unit_price', 'quantity', 'category']):
-            error_detail = (
-                f"Invalid data from AI: An item was returned with missing required fields (unit_price, quantity, or category). "
-                f"Please try again. Offending item: {item}"
-            )
-            raise HTTPException(status_code=422, detail=error_detail)
-
-    # Extract common bill information
-    common_info = {
-        "user_id": user_id,
-        "store_name": generated_json.get("store_name"),
-        "bill_date": generated_json.get("bill_date") or datetime.date.today().isoformat(),
-        "total_amount": generated_json.get("total_amount"),
-        "input_type": input_type,
-        "created_at": datetime.datetime.utcnow(),
-    }
-
-    for item in bill_items:
-        if isinstance(item, dict):
-            new_doc = {**common_info, **item}
+        items_to_store = []
+        for item in bill_items:
+            if not all(k in item and item[k] is not None for k in ['unit_price', 'quantity', 'category']):
+                continue
+            new_doc = {
+                "user_id": user_id,
+                "store_name": generated_json.get("store_name"),
+                "bill_date": generated_json.get("bill_date") or datetime.date.today().isoformat(),
+                "total_amount": generated_json.get("total_amount"),
+                "input_type": input_type,
+                "created_at": datetime.datetime.utcnow(),
+                **item,
+            }
             items_to_store.append(new_doc)
 
-    if not items_to_store:
-        raise HTTPException(status_code=422, detail="No valid items were found to store after validation.")
+        if not items_to_store:
+            return {
+                "message": "No valid expense data found. Here’s the AI response:",
+                "ai_response": cleaned_text
+            }
 
-    # Use insert_many for efficient bulk insertion
-    result = await item_collection.insert_many(items_to_store)
+        result = await item_collection.insert_many(items_to_store)
+        created_records = await item_collection.find({"_id": {"$in": result.inserted_ids}}).to_list(length=None)
+        return [ProcessedItemInDB(**fix_object_id(rec)) for rec in created_records]
 
-    # Fetch the newly created documents to return them
-    created_records = await item_collection.find({"_id": {"$in": result.inserted_ids}}).to_list(length=None)
-
-    return [fix_object_id(record) for record in created_records]
-
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"An unexpected error occurred: {str(e)}")
 
 @app.get("/")
 def read_root(current_user: dict = Depends(get_current_user)):
