@@ -181,38 +181,51 @@ export function VoiceRecorder() {
       formData.append("user_explanation", trimmedInput);
     }
     try {
-      // 2. Append fields
-      // for example, a file from input
-
       const response = await fetch("http://localhost:8000/process", {
         method: "POST",
         headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
-        body: formData
+        body: formData,
       });
-      if(response.status==401){
-        localStorage.removeItem('token')
-        navigate('/login')
+    
+      if (response.status === 401) {
+        localStorage.removeItem("token");
+        navigate("/login");
+        return;
       }
-      else{
-        const data = await response.json(); // parse JSON response
-
+    
+      const data = await response.json();
+    
+      // If response is a list => it's expense items
+      if (Array.isArray(data)) {
         const message = data
           .map(
             (item) =>
-              `item name: ${item.item_name} \n item price:${item.unit_price}\n item catagoery:  ${item.category}`
+              `🛒 Item: ${item.item_name}\n💰 Price: ₹${item.unit_price}\n📦 Category: ${item.category}`
           )
-          .join(", ");
-
-        console.log("Constructed message:", message);
-
-        // Assuming you have a React state setter called setOutMessageState
+          .join("\n\n");
+    
         setOutMessage(message);
+    
+      } else if (typeof data === "object" && data.message) {
+        // If response is an object => it's a chatbot message or error
+        let message = data.message;
+        
+        // If there's also an AI response, add it
+        if (data.ai_response) {
+          message += `\n\n💬 AI Response:\n${data.ai_response}`;
+        }
+    
+        setOutMessage(message);
+      } else {
+        // Unexpected response
+        setOutMessage("⚠️ Unexpected response format from server.");
       }
+    
     } catch (error) {
       console.error("Failed to send message:", error);
-      setOutMessage("Oops! Something went wrong. Please try again later.");
+      setOutMessage("❌ Oops! Something went wrong. Please try again later.");
     }
 
     // Update local chat
@@ -251,7 +264,7 @@ export function VoiceRecorder() {
         {
           sender: "bot",
           type: "text",
-          content: `I understand you said: "${outMessage || "[image only]"}".`,
+          content: `Your expense summary saved is: \n"${outMessage || "[image only]"}".`,
         },
       ]);
     }, 1500);
