@@ -129,7 +129,7 @@ export default function Login() {
           <p className="text-sm text-center text-muted-foreground mt-4">
             Not registered?{" "}
             <Link to="/signup-step-one" className="text-primary hover:underline font-medium">
-              Sign up first
+              Sign up
             </Link>
           </p>
         </Card>

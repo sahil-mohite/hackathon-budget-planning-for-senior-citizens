@@ -14,7 +14,7 @@ const SignUpSecondPage = () => {
   const [showStockFields, setShowStockFields] = useState(formData.financialDetails?.investsInStocks || false);
   const [getsPension, setGetsPension] = useState(formData.financialDetails?.getsPension || false);
 
-  const [errors, setErrors] = useState<{ phone?: string; income?: string; address?: string }>({});
+  const [errors, setErrors] = useState<{ phone?: string; income?: string; address?: string; financialGoals?: string; }>({});
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -61,6 +61,10 @@ const SignUpSecondPage = () => {
 
     if (!formData.address || formData.address.trim().length < 5) {
       newErrors.address = "Address must be at least 5 characters.";
+    }
+
+    if(formData.financialGoals.trim().length < 10){
+      newErrors.financialGoals = "Financial Goals must be at least 10 characters.";
     }
 
     setErrors(newErrors);
@@ -253,6 +257,7 @@ const SignUpSecondPage = () => {
                 placeholder="Please set your Financial goal"
                 required
               />
+              {errors.financialGoals && <p className="text-xs text-red-500 mt-1">{errors.financialGoals}</p>}
             </div>
 
             <Button onClick={handleSubmit} className="w-full mt-4">Complete Signup</Button>
