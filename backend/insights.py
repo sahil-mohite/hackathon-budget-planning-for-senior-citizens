@@ -157,20 +157,19 @@ async def get_financial_insights(current_user: dict = Depends(get_current_user))
     # 2. Fetch all user expenses
     expenses_cursor = item_collection.find({"user_id": user_id})
     expenses = await expenses_cursor.to_list(length=1000)
-    print(expenses)
-    if not expenses:
-        raise HTTPException(status_code=404, detail=f"No expenses found for user {user_id}. Cannot generate insights without spending data.")
 
     # 3. Create a prompt for Gemini
     # Convert expenses to a more readable format for the AI
-    expenses_summary = json.dumps([
-        {
-            "item": doc.get("item_name"),
-            "category": doc.get("category"),
-            "cost": doc.get("quantity", 1) * doc.get("unit_price", 0)
-        }
-        for doc in expenses if doc.get("quantity") is not None and doc.get("unit_price") is not None
-    ], indent=2)
+    if expenses:
+        expenses_summary = json.dumps([
+            {
+                "item": doc.get("item_name"),
+                "category": doc.get("category"),
+                "cost": doc.get("quantity", 1) * doc.get("unit_price", 0)
+            }
+            for doc in expenses if doc.get("quantity") is not None and doc.get("unit_price") is not None
+        ], indent=2)
+        expenses = expenses_summary
 
     prompt = f"""
     Analyze the following financial data for a user.
@@ -179,7 +178,7 @@ async def get_financial_insights(current_user: dict = Depends(get_current_user))
     User's Current Financial Condition: "{current_details}"
 
     User's Spending History for this month:
-    {expenses_summary}
+    {expenses}
 
     Based on their spending and current financial condition, provide actionable, personalized insights and tips on how they can achieve their goal. Structure your response with clear headings. Focus on identifying spending patterns, suggesting specific areas for savings, and offering encouragement. Maximum 5 insights. 30 words max each. In bullet points.
     """
