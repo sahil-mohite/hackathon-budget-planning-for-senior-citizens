@@ -16,6 +16,7 @@ type SignupFormData = {
   lastName: string;
   address: string;
   phone: string;
+  financialGoal:string;
   financialDetails: FinancialDetails;
 };
 
@@ -33,6 +34,7 @@ const initialState: SignupFormData = {
   lastName: "",
   address: "",
   phone: "",
+  financialGoal:"",
   financialDetails: {
     income: "",
     getsPension: false,

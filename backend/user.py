@@ -59,6 +59,7 @@ async def signup(payload: SignUpRequest):
         "email": payload.email,
         "phone": payload.phone,
         "password": hash_password(payload.password),
+        "financialGoal":payload.finacialGoal,
         "financialDetails": financialDetails
     }
     await users_collection.insert_one(user)

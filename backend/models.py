@@ -20,6 +20,7 @@ class SignUpRequest(BaseModel):
     password: str
     address: str
     phone: str
+    financialGoal: str
     financialDetails: FinancialDetails
 
 

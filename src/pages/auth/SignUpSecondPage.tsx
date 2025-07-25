@@ -14,7 +14,7 @@ const SignUpSecondPage = () => {
   const [showStockFields, setShowStockFields] = useState(formData.financialDetails?.investsInStocks || false);
   const [getsPension, setGetsPension] = useState(formData.financialDetails?.getsPension || false);
 
-  const [errors, setErrors] = useState<{ phone?: string; income?: string; address?: string }>({});
+  const [errors, setErrors] = useState<{ phone?: string; income?: string; address?: string;financialGoal?: string  }>({});
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -61,6 +61,10 @@ const SignUpSecondPage = () => {
 
     if (!formData.address || formData.address.trim().length < 5) {
       newErrors.address = "Address must be at least 5 characters.";
+    }
+
+    if (!formData.financialGoal || formData.financialGoal.trim().length < 30) {
+      newErrors.financialGoal = "financialGoal must be at least 30 characters.";
     }
 
     setErrors(newErrors);
@@ -167,6 +171,18 @@ const SignUpSecondPage = () => {
                 placeholder="123 Main Street, City"
               />
               {errors.address && <p className="text-xs text-red-500 mt-1">{errors.address}</p>}
+            </div>
+
+            {/* Financial Goal */}
+            <div>
+              <label className="text-sm font-medium text-muted-foreground">Financial Goal <span className="text-red-500">*</span></label>
+              <Input
+                name="financialGoal"
+                value={formData.financialGoal}
+                onChange={handleChange}
+                placeholder="Insert your financial goal"
+              />
+              {errors.financialGoal && <p className="text-xs text-red-500 mt-1">{errors.financialGoal}</p>}
             </div>
 
             {/* Pension Toggle */}
