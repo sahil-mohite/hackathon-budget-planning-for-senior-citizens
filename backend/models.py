@@ -21,6 +21,7 @@ class SignUpRequest(BaseModel):
     address: str
     phone: str
     financialDetails: FinancialDetails
+    financialGoals: str
 
 
 class SignInRequest(BaseModel):
@@ -70,7 +71,6 @@ class ExpenseItem(BaseModel):
 
 class InsightResponse(BaseModel):
     user_id: str
-    goal_description: str
     insights: str
 
 class UserUpdate(BaseModel):

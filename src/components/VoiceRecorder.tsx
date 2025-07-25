@@ -264,7 +264,7 @@ export function VoiceRecorder() {
         {
           sender: "bot",
           type: "text",
-          content: `Your expense summary saved is: \n"${outMessage || "[image only]"}".`,
+          content: `${outMessage || "[image only]"}.`,
         },
       ]);
     }, 1500);

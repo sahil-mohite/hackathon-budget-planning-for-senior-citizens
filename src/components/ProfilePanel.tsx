@@ -22,6 +22,7 @@ interface UserData {
   address: string;
   phone: string;
   financialDetails: FinancialDetails;
+  financialGoals: string;
 }
 
 interface ProfilePanelProps {
@@ -78,6 +79,7 @@ export function ProfilePanel({ isOpen, onClose, userData }: ProfilePanelProps) {
       },
       phone: user.phone || "NA",
       address: user.address || "NA",
+      financialGoals: user.financialGoals || "NA"
     };
 
     try {
@@ -186,6 +188,15 @@ export function ProfilePanel({ isOpen, onClose, userData }: ProfilePanelProps) {
             <Input
               name="additionalDetails"
               value={user.financialDetails.additionalDetails}
+              onChange={handleUpdate}
+              placeholder="NA"
+            />
+          </div>
+          <div>
+            <Label>Financial Goals</Label>
+            <Input
+              name="financialGoals"
+              value={user.financialGoals}
               onChange={handleUpdate}
               placeholder="NA"
             />

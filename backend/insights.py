@@ -8,7 +8,7 @@ import google.generativeai as genai
 from dotenv import load_dotenv
 from models import FinancialGoal, GoalInDB, ExpenseItem, InsightResponse
 from auth_utils import get_current_user
-from database import item_collection, goal_collection
+from database import item_collection, users_collection
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi import APIRouter, HTTPException, Path, Body
 from bson import ObjectId
@@ -49,26 +49,26 @@ def fix_object_id(doc):
         doc["_id"] = str(doc["_id"])
     return doc
 
-# --- Endpoint 1: Set Financial Goal ---
-@app.post("/goals", response_model=GoalInDB, status_code=201)
-async def set_financial_goal(goal: FinancialGoal, current_user: dict = Depends(get_current_user)):
-    """
-    Accepts a user_id and their financial goal for the month and stores it.
-    This will overwrite any existing goal for the same user and month.
-    """
-    goal_dict = goal.dict()
-    goal_dict["created_at"] = datetime.datetime.utcnow()
+# # --- Endpoint 1: Set Financial Goal ---
+# @app.post("/goals", response_model=GoalInDB, status_code=201)
+# async def set_financial_goal(goal: FinancialGoal, current_user: dict = Depends(get_current_user)):
+#     """
+#     Accepts a user_id and their financial goal for the month and stores it.
+#     This will overwrite any existing goal for the same user and month.
+#     """
+#     goal_dict = goal.dict()
+#     goal_dict["created_at"] = datetime.datetime.utcnow()
 
-    # Use update_one with upsert=True to either create a new goal or update an existing one
-    await goal_collection.update_one(
-        {"user_id": goal.user_id, "month": goal.month},
-        {"$set": goal_dict},
-        upsert=True
-    )
+#     # Use update_one with upsert=True to either create a new goal or update an existing one
+#     await goal_collection.update_one(
+#         {"user_id": goal.user_id, "month": goal.month},
+#         {"$set": goal_dict},
+#         upsert=True
+#     )
 
-    # Fetch the newly created/updated document to return it
-    created_goal = await goal_collection.find_one({"user_id": goal.user_id, "month": goal.month})
-    return fix_object_id(created_goal)
+#     # Fetch the newly created/updated document to return it
+#     created_goal = await goal_collection.find_one({"user_id": goal.user_id, "month": goal.month})
+#     return fix_object_id(created_goal)
 
 
 # --- Endpoint 2: Get User Expenses ---
@@ -137,23 +137,27 @@ async def delete_expense(
     return {"message": "Expense deleted successfully", "id": expense_id}
 
 # --- Endpoint 5: Get Financial Insights ---
-@app.get("/insights/{user_id}", response_model=InsightResponse)
-async def get_financial_insights(user_id: str = Path(..., description="The ID of the user to generate insights for."), current_user: dict = Depends(get_current_user)):
+@app.get("/insights", response_model=InsightResponse)
+async def get_financial_insights(current_user: dict = Depends(get_current_user)):
     """
     Fetches the user's goal and expenses, then uses Gemini to generate insights.
     """
+    user_id=current_user["email"]
+
     if not GOOGLE_API_KEY:
         raise HTTPException(status_code=503, detail="AI Service is not configured on the server.")
 
     # 1. Fetch the user's most recent goal
-    current_month = datetime.datetime.now().strftime("%Y-%m")
-    goal = await goal_collection.find_one({"user_id": user_id, "month": current_month})
+    user = await users_collection.find_one({"email": user_id})
+    current_details = user['financialDetails']
+    goal = user['financialGoals']
     if not goal:
         raise HTTPException(status_code=404, detail=f"No financial goal found for user {user_id} for the current month. Please set a goal first.")
 
     # 2. Fetch all user expenses
     expenses_cursor = item_collection.find({"user_id": user_id})
     expenses = await expenses_cursor.to_list(length=1000)
+    print(expenses)
     if not expenses:
         raise HTTPException(status_code=404, detail=f"No expenses found for user {user_id}. Cannot generate insights without spending data.")
 
@@ -171,24 +175,25 @@ async def get_financial_insights(user_id: str = Path(..., description="The ID of
     prompt = f"""
     Analyze the following financial data for a user.
 
-    User's Goal: "{goal['goal_description']}"
+    User's Goal: "{goal}"
+    User's Current Financial Condition: "{current_details}"
 
     User's Spending History for this month:
     {expenses_summary}
 
-    Based on their spending, provide actionable, personalized insights and tips on how they can achieve their goal. Structure your response with clear headings. Focus on identifying spending patterns, suggesting specific areas for savings, and offering encouragement. Maximum 5 insights. 10 words max each.
+    Based on their spending and current financial condition, provide actionable, personalized insights and tips on how they can achieve their goal. Structure your response with clear headings. Focus on identifying spending patterns, suggesting specific areas for savings, and offering encouragement. Maximum 5 insights. 30 words max each. In bullet points.
     """
 
     # 4. Call Gemini
     try:
         model = genai.GenerativeModel("gemini-1.5-flash")
         response = await model.generate_content_async(prompt)
-        insights_text = response.text
+        cleaned_insights = response.text.replace("```json", "").replace("```", "").strip()
+        print(cleaned_insights)
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"An error occurred while generating insights: {e}")
 
     return InsightResponse(
         user_id=user_id,
-        goal_description=goal['goal_description'],
-        insights=insights_text
+        insights=cleaned_insights
     )
